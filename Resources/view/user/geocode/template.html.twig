@@ -1,0 +1,13 @@
+{# ---- ШАБЛОН ------------------------------------------------------------ #}
+{% extends Template('/admin/base.html.twig') %}
+
+{# ---- КОНТЕНТ-БЛОК ------------------------------------------------------------ #}
+{% block content %}
+	{{ include(_self|replace({ "template.html.twig": "content.html.twig" })) }}
+{% endblock %}
+
+{% block javascript %}
+{#<script defer src="{{ path(app.request.attributes.get('_route')~'.js') }}"></script>#}
+<script nonce="{{ csp_nonce() }}" data-src="/assets/field_address/script{{ app.environment != 'dev'?'.min' }}.js?v={{ version }}" class='lazy'></script>
+
+{% endblock %}
