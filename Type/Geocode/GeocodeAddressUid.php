@@ -32,7 +32,7 @@ final class GeocodeAddressUid extends Uid
 {
     public const TEST = '0188a9a5-50da-7837-80ab-4996fbc63f1f';
     
-    public const TYPE = 'geocode_address_uid';
+    public const TYPE = 'geocode_address';
 
     private mixed $attr;
 
