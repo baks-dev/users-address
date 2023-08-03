@@ -28,8 +28,10 @@ namespace BaksDev\Users\Address\Services\Tests;
 use BaksDev\Users\Address\Services\GeocodeDistance;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
 /** @group users-address */
+#[When(env: 'test')]
 final class GeocodeDistanceTest extends TestCase
 {
     private GeocodeDistance $geocodeDistance;

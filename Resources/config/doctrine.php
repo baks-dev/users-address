@@ -16,13 +16,13 @@ return static function(DoctrineConfig $doctrine) {
 	$doctrine->dbal()->type(UsersAddressUid::TYPE)->class(UsersAddressUidType::class);
     $doctrine->dbal()->type(AddressField::TYPE)->class(AddressFieldType::class);
 
-    $emDefault = $doctrine->orm()->entityManager('default');
+    $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
 
-    $emDefault->autoMapping(true);
+    $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
 
     $emDefault->mapping('UsersAddress')
         ->type('attribute')
-        ->dir(__DIR__.'/../../Entity')
+        ->dir($MODULE.'Entity')
         ->isBundle(false)
         ->prefix('BaksDev\Users\Address\Entity')
         ->alias('UsersAddress')

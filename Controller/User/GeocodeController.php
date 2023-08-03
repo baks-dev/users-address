@@ -36,8 +36,10 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[AsController]
 final class GeocodeController extends AbstractController
 {
     #[Route('/geocode/{address}', name: 'user.geocode', methods: ['GET', 'POST'])]
@@ -87,12 +89,6 @@ final class GeocodeController extends AbstractController
 
         $form->handleRequest($request);
 
-
-//        dump($form->isSubmitted());
-//        dump($form->isValid());
-//
-//        dump($form->getErrors());
-//        dd($form->has('geocode'));
 
         /*  */
         if ($form->isSubmitted() && $form->has('geocode'))

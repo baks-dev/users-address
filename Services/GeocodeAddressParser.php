@@ -29,6 +29,7 @@ use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressHandler;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpKernel\KernelInterface;
@@ -55,7 +56,7 @@ final class GeocodeAddressParser
         KernelInterface $kernel,
         GeocodeAddressHandler $handler,
         TranslatorInterface $translator,
-        string $apikey
+        #[Autowire(env: 'MAPS_YANDEX_API')] string $apikey
     ) {
         $this->filesystem = $filesystem;
         $this->projectDir = $kernel->getProjectDir();

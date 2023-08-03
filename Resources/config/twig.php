@@ -6,10 +6,4 @@ use Symfony\Config\TwigConfig;
 
 return static function(TwigConfig $config) {
 	$config->path(__DIR__.'/../view', 'UsersAddress');
-
-    
 };
-
-
-
-

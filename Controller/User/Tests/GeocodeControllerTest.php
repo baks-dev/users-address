@@ -20,14 +20,10 @@ namespace BaksDev\Users\Address\Controller\User\Tests;
 
 use BaksDev\Users\User\Tests\TestUserAccount;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @internal
- *
- * @coversNothing
- *
- * @group users-address
- */
+/** @group users-address */
+#[When(env: 'test')]
 final class GeocodeControllerTest extends WebTestCase
 {
     private string $geocode = 'Санкт-Петербург';

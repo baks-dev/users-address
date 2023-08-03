@@ -32,10 +32,12 @@ use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
+use Symfony\Component\DependencyInjection\Attribute\When;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Uuid;
 
 /** @group users-address */
+#[When(env: 'test')]
 final class UsersProfileAddressDTOTest extends TestCase
 {
     private UsersProfileAddressDTO $dto;

@@ -87,9 +87,6 @@ final class UsersProfileAddressForm extends AbstractType
             }
         );
 
-       // dd('data-latitude' => $data->getLatitude(), 'data-longitude' => $data->getLongitude());
-
-
         /* Сохранить */
         $builder->add(
             'geocode',

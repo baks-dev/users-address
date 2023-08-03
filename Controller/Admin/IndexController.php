@@ -24,8 +24,10 @@ use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Users\Profile\TypeProfile\Repository\AllProfileType\AllProfileTypeInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Attribute\AsController;
 use Symfony\Component\Routing\Annotation\Route;
 
+#[AsController]
 #[RoleSecurity('ROLE_USERS_ADDRESS')]
 final class IndexController extends AbstractController
 {
