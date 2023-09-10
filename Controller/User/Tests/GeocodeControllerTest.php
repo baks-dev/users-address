@@ -54,10 +54,10 @@ final class GeocodeControllerTest extends WebTestCase
 
         foreach (TestUserAccount::getDevice() as $device)
         {
-            $user = TestUserAccount::getAdmin();
+            $usr = TestUserAccount::getAdmin();
 
             $client->setServerParameter('HTTP_USER_AGENT', $device);
-            $client->loginUser($user, 'user');
+            $client->loginUser($usr, 'user');
             $client->request('GET', sprintf(self::URL, $this->geocode));
 
             self::assertResponseIsSuccessful();
@@ -71,10 +71,10 @@ final class GeocodeControllerTest extends WebTestCase
         $client = static::createClient();
         foreach (TestUserAccount::getDevice() as $device)
         {
-            $user = TestUserAccount::getUser();
-
+            $usr = TestUserAccount::getUsr();
+            
             $client->setServerParameter('HTTP_USER_AGENT', $device);
-            $client->loginUser($user, 'user');
+            $client->loginUser($usr, 'user');
             $client->request('GET', sprintf(self::URL, $this->geocode));
 
             self::assertResponseIsSuccessful();

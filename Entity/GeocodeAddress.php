@@ -40,7 +40,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 #[ORM\Table(name: 'geocode_address')]
 #[ORM\UniqueConstraint(columns: ['longitude', 'latitude'])]
 #[ORM\Index(columns: ['address'])]
-final class GeocodeAddress extends EntityState
+class GeocodeAddress extends EntityState
 {
     public const TABLE = 'geocode_address';
 

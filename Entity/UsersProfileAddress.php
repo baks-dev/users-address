@@ -35,7 +35,7 @@ use InvalidArgumentException;
 
 #[ORM\Entity]
 #[ORM\Table(name: 'users_address')]
-final class UsersProfileAddress extends EntityState
+class UsersProfileAddress extends EntityState
 {
     public const TABLE = 'users_profile_address';
 
