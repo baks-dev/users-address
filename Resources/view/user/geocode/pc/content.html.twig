@@ -2,91 +2,98 @@
 
 <div class="modal-dialog modal-dialog-centered" style="max-width: 1200px;">
 
-	{{ form_start(form) }}
-	<div class="modal-content p-3 border-bottom border-5 border-primary">
-		<div class="modal-header">
-			
-			<h5 class="modal-title">
-				{# Заголовок модального окна #}
-				{{ 'Уточнить адрес'|trans }}
-			</h5>
-			
-			<div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
-				<span class="svg-icon svg-icon-2x"></span>
-			</div>
-		</div>
+    {{ form_start(form) }}
+    <div class="modal-content p-3 border-bottom border-5 border-primary">
+        <div class="modal-header">
+
+            <h5 class="modal-title">
+                {# Заголовок модального окна #}
+                {{ 'Уточнить адрес'|trans }}
+            </h5>
+
+            <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
+                <span class="svg-icon svg-icon-2x"></span>
+            </div>
+        </div>
 
 
-		<div class="map-wrap d-flex overflow-hidden rounded-4  p-3">
-			<div id="map" class='w-100 bg-cover'
-				 style='height: 300px; background-image: url("/triangle/map.webp");'
-			>
-			</div>
-		</div>
+        <div class="map-wrap d-flex overflow-hidden rounded-4  p-3">
+            <div id="map" class='w-100 bg-cover'
+                 style='height: 300px; background-image: url("/triangle/map.webp");'
+            >
+            </div>
+        </div>
 
 
-		<div class="modal-body">
+        <div class="modal-body">
 
-				{#<iframe
+            {# <iframe
 						src="https://yandex.ru/maps/{{ form.vars.data.longitude and form.vars.data.latitude ? '?whatshere[point]='~ form.vars.data.longitude ~','~ form.vars.data.latitude ~'&whatshere[zoom]=20' }}"
 						frameborder="0"
 						style="height: 300px;"
 						class="mb-3 w-100"
 				>
 
-				</iframe>#}
+				</iframe> #}
 
-			{% if form.vars.data.house %}
-				<h4>
-					Это Ваш адрес ?
-				</h4>
-			{% else %}
+            {% if form.vars.data.house %}
+                <h4>
+                    Это Ваш адрес ?
+                </h4>
+            {% else %}
 
-				{% if form.vars.data.desc %}
-					<h5>
-						{# Вы уверены, что желаете удалить #}
-						{#{{ 'admin.form.delete.h4'|trans }} "{{ name }}"?#}
-						К сожалению мы не можем определить указанный Вами адрес.
-					</h5>
-					<p>
-						Пожалуйста, уточните адрес, чтобы мы могли определить точное местоположение либо доставка будет по указанному на карте адресу
+                {% if form.vars.data.desc %}
+                    <h5>
+                        {# Вы уверены, что желаете удалить #}
+                        {# {{ 'admin.form.delete.h4'|trans }} "{{ name }}"? #}
+                        К сожалению мы не можем определить указанный Вами адрес.
+                    </h5>
+                    <p>
+                        Пожалуйста, уточните адрес, чтобы мы могли определить точное местоположение либо доставка будет
+                        по указанному на карте адресу
 
-					</p>
-				{% else %}
-					<p>Пожалуйста, уточните адрес, чтобы мы могли определить точное местоположение</p>
-				{% endif %}
+                    </p>
+                {% else %}
+                    <p>Пожалуйста, уточните адрес, чтобы мы могли определить точное местоположение</p>
+                {% endif %}
 
-			{% endif %}
+            {% endif %}
 
 
-			{{ form_widget(form.desc) }}
+            {{ form_widget(form.desc) }}
 
-			{% if is_granted('ROLE_ADMIN') %}
-				Москва, Братеевская улица, 16к6 <br>
-				Москва, Каширское шоссе, 34А
-			{% endif %}
+            {% if is_granted('ROLE_ADMIN') %}
+                Москва, Братеевская улица, 16к6 <br>
+                Москва, Каширское шоссе, 34А
+            {% endif %}
 
-		</div>
-		
-		<div class="modal-footer">
+        </div>
 
-			{# Отмена #}
-			<div class="mb-3">
-				<button type="button" class="btn btn-light" data-bs-dismiss="modal">
-					{{ 'btn.cancel'|trans({}, 'core.btn') }}
-				</button>
-			</div>
+        <div class="modal-footer">
 
-			{# Сохранить #}
-			{{ form_row(form.geocode, { label: '
-				<span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
-				<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-			'}) }}
+            <div class="flex-grow-1">
+                &nbsp;
+            </div>
 
-		</div>
-	</div>
+            <div class="d-flex gap-3">
+                {# Отмена #}
 
-	{{ form_end(form) }}
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">
+                    {{ 'btn.cancel'|trans({}, 'core.btn') }}
+                </button>
+
+
+                {# Сохранить #}
+                {{ form_row(form.geocode, { label: '
+                    <span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
+                    <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+                '}) }}
+            </div>
+
+        </div>
+    </div>
+
+    {{ form_end(form) }}
 
 
 </div>

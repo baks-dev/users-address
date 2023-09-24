@@ -36,11 +36,12 @@
                 {% if form.vars.data.desc %}
                     <h5>
                         {# Вы уверены, что желаете удалить #}
-                        {#{{ 'admin.form.delete.h4'|trans }} "{{ name }}"?#}
+                        {# {{ 'admin.form.delete.h4'|trans }} "{{ name }}"? #}
                         К сожалению мы не можем определить указанный Вами адрес.
                     </h5>
                     <p>
-                        Пожалуйста, уточните адрес, чтобы мы могли определить точное местоположение либо доставка будет по указанному на карте адресу
+                        Пожалуйста, уточните адрес, чтобы мы могли определить точное местоположение либо доставка будет
+                        по указанному на карте адресу
 
                     </p>
                 {% else %}
@@ -56,22 +57,24 @@
 
         <div class="modal-footer">
 
+            <div class="flex-grow-1">
+                &nbsp;
+            </div>
 
+            <div class="d-flex gap-3">
+                {# Отмена #}
 
-            {#{{ form_row(form.geocode, {label: 'Сохранить'|trans({}, 'core.btn') }) }}#}
-
-            {# Отмена #}
-            <div class="mb-3">
                 <button type="button" class="btn btn-light" data-bs-dismiss="modal">
                     {{ 'btn.cancel'|trans({}, 'core.btn') }}
                 </button>
-            </div>
 
-            {# Сохранить #}
-            {{ form_row(form.geocode, { label: '
-				<span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
-				<span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
-			'}) }}
+
+                {# Сохранить #}
+                {{ form_widget(form.geocode, { label: '
+                    <span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
+                    <span class="spinner-border spinner-border-sm vertical-middle d-none"></span>
+                '}) }}
+            </div>
         </div>
     </div>
 
