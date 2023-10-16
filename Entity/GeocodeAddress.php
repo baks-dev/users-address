@@ -131,7 +131,9 @@ class GeocodeAddress extends EntityState
 
     public function getDto($dto): mixed
     {
-        if ($dto instanceof GeocodeAddressInterface)
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
+        if ($dto instanceof GeocodeAddressInterface || $dto instanceof self)
         {
             return parent::getDto($dto);
         }
@@ -141,7 +143,7 @@ class GeocodeAddress extends EntityState
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof GeocodeAddressInterface)
+        if ($dto instanceof GeocodeAddressInterface || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }

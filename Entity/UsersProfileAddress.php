@@ -39,20 +39,31 @@ class UsersProfileAddress extends EntityState
 {
     public const TABLE = 'users_profile_address';
 
-    /** Связь на адрес */
+    /**
+     * Связь на адрес
+     */
     #[ORM\Id]
     #[ORM\Column(type: GeocodeAddressUid::TYPE)]
     private readonly GeocodeAddressUid $address;
 
-    /** ID */
+    /**
+     * Идентификатор профиля пользователя
+     */
     #[ORM\Id]
     #[ORM\Column(type: UserProfileUid::TYPE)]
     private readonly UserProfileUid $profile;
 
+    public function __toString(): string
+    {
+        return (string) $this->address;
+    }
+
 
     public function getDto($dto): mixed
     {
-        if ($dto instanceof UsersProfileAddressInterface)
+        $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
+
+        if ($dto instanceof UsersProfileAddressInterface || $dto instanceof self)
         {
             return parent::getDto($dto);
         }
@@ -62,7 +73,7 @@ class UsersProfileAddress extends EntityState
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof UsersProfileAddressInterface)
+        if ($dto instanceof UsersProfileAddressInterface || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }

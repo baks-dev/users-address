@@ -24,19 +24,19 @@ use Doctrine\DBAL\Types\TextType;
 final class AddressFieldType extends TextType
 {
 	
-	public function convertToDatabaseValue($value, AbstractPlatform $platform) : mixed
+	public function convertToDatabaseValue($value, AbstractPlatform $platform): mixed
 	{
 		return $value instanceof AddressField ? $value->getValue() : $value;
 	}
 	
 	
-	public function convertToPHPValue($value, AbstractPlatform $platform) : mixed
+	public function convertToPHPValue($value, AbstractPlatform $platform): mixed
 	{
 		return !empty($value) ? new AddressField($value) : null;
 	}
 	
 	
-	public function getName() : string
+	public function getName(): string
 	{
 		return AddressField::TYPE;
 	}

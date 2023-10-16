@@ -38,8 +38,8 @@ final class GeocodeAddressHandler
 
     public function __construct(
         EntityManagerInterface $entityManager,
-        ValidatorInterface     $validator,
-        LoggerInterface        $logger,
+        ValidatorInterface $validator,
+        LoggerInterface $logger,
     )
     {
         $this->entityManager = $entityManager;
@@ -48,19 +48,17 @@ final class GeocodeAddressHandler
 
     }
 
-    public function handle(
-        GeocodeAddressDTO $command,
-        //?UploadedFile $cover = null
-    ): string|GeocodeAddressEntity\GeocodeAddress
+    public function handle(GeocodeAddressDTO $command,): string|GeocodeAddressEntity\GeocodeAddress
     {
 
         /* Валидация DTO */
         $errors = $this->validator->validate($command);
 
-        if (count($errors) > 0) {
+        if(count($errors) > 0)
+        {
             $uniqid = uniqid('', false);
-            $errorsString = (string)$errors;
-            $this->logger->error($uniqid . ': ' . $errorsString);
+            $errorsString = (string) $errors;
+            $this->logger->error($uniqid.': '.$errorsString);
             return $uniqid;
         }
 
@@ -70,7 +68,7 @@ final class GeocodeAddressHandler
         );
 
 
-        if (!$GeocodeAddress)
+        if(!$GeocodeAddress)
         {
             $GeocodeAddress = new GeocodeAddressEntity\GeocodeAddress();
             $this->entityManager->persist($GeocodeAddress);
@@ -79,14 +77,15 @@ final class GeocodeAddressHandler
 
         $GeocodeAddress->setEntity($command);
 
-        
+
         /* Валидация GeocodeAddress */
         $errors = $this->validator->validate($GeocodeAddress);
 
-        if (count($errors) > 0) {
+        if(count($errors) > 0)
+        {
             $uniqid = uniqid('', false);
-            $errorsString = (string)$errors;
-            $this->logger->error($uniqid . ': ' . $errorsString);
+            $errorsString = (string) $errors;
+            $this->logger->error($uniqid.': '.$errorsString);
             return $uniqid;
         }
 

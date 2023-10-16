@@ -38,18 +38,18 @@ final class AddressFieldChoice implements FieldsChoiceInterface
 		return $key === AddressField::TYPE;
 	}
 	
-	public function type() : string
+	public function type(): string
 	{
 		return AddressField::TYPE;
 	}
 
-	public function domain() : string
+	public function domain(): string
 	{
 		return 'field.address';
 	}
 	
 	/** Возвращает класс формы для рендера */
-	public function form() : string
+	public function form(): string
 	{
 		return AddressFieldForm::class;
 	}

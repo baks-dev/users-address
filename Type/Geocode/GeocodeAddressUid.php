@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Users\Address\Type\Geocode;
 
+use App\Kernel;
 use BaksDev\Core\Type\UidType\Uid;
 use Symfony\Component\Uid\AbstractUid;
 
@@ -40,6 +41,7 @@ final class GeocodeAddressUid extends Uid
 
     public function __construct(AbstractUid|string|null $value = null, mixed $attr = null, mixed $option = null)
     {
+
         parent::__construct($value);
         
         $this->attr = $attr;
