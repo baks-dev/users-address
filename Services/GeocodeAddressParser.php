@@ -162,7 +162,7 @@ final class GeocodeAddressParser
         //$address = rawurlencode($address);
         $fileName = md5($address);
 
-        $cache = new FilesystemAdapter('UsersAddress');
+        $cache = new FilesystemAdapter('users-address');
 
         /* Кешируем результат GET */
         $content = $cache->get($fileName, function (ItemInterface $item) use ($address) {

@@ -84,7 +84,7 @@ final class GeocodeController extends AbstractController
         }
 
         $form = $this->createForm(UsersProfileAddressForm::class, $UsersProfileAddressDTO, [
-            'action' => $this->generateUrl('UsersAddress:user.geocode', ['address' => $UsersProfileAddressDTO->getAddress()]),
+            'action' => $this->generateUrl('users-address:user.geocode', ['address' => $UsersProfileAddressDTO->getAddress()]),
         ]);
 
         $form->handleRequest($request);

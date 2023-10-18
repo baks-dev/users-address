@@ -20,11 +20,11 @@ return static function(DoctrineConfig $doctrine) {
 
     $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
 
-    $emDefault->mapping('UsersAddress')
+    $emDefault->mapping('users-address')
         ->type('attribute')
         ->dir($MODULE.'Entity')
         ->isBundle(false)
         ->prefix('BaksDev\Users\Address\Entity')
-        ->alias('UsersAddress')
+        ->alias('users-address')
     ;
 };

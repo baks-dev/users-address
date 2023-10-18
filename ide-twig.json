@@ -1,7 +1,7 @@
 {
   "namespaces": [
     {
-      "namespace": "UsersAddress",
+      "namespace": "users-address",
       "path": "Resources/view"
     }
   ]

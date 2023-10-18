@@ -60,7 +60,7 @@ final class GeocodeAddress implements GeocodeAddressInterface
 
         /* Кешируем результат DBAL */
 
-        $cacheFilesystem = new FilesystemAdapter('UsersAddress');
+        $cacheFilesystem = new FilesystemAdapter('users-address');
 
         $config = $this->entityManager->getConnection()->getConfiguration();
         $config?->setResultCache($cacheFilesystem);
@@ -95,7 +95,7 @@ final class GeocodeAddress implements GeocodeAddressInterface
 
         /* Кешируем результат DBAL */
 
-        $cacheFilesystem = new FilesystemAdapter('UsersAddress');
+        $cacheFilesystem = new FilesystemAdapter('users-address');
 
         $config = $this->entityManager->getConnection()->getConfiguration();
         $config?->setResultCache($cacheFilesystem);

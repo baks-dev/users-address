@@ -61,7 +61,7 @@ final class AddressFieldExtension extends AbstractExtension
         }
         catch (LoaderError $loaderError)
         {
-            return $twig->render('@UsersAddress/choice/content.html.twig', ['value' => $value, 'address' => $address]);
+            return $twig->render('@users-address/choice/content.html.twig', ['value' => $value, 'address' => $address]);
         }
     }
 
@@ -73,7 +73,7 @@ final class AddressFieldExtension extends AbstractExtension
         }
         catch (LoaderError $loaderError)
         {
-            return $twig->render('@UsersAddress/choice/render.html.twig', ['value' => $value]);
+            return $twig->render('@users-address/choice/render.html.twig', ['value' => $value]);
         }
     }
 
@@ -85,7 +85,7 @@ final class AddressFieldExtension extends AbstractExtension
         }
         catch (LoaderError $loaderError)
         {
-            return $twig->render('@UsersAddress/choice/template.html.twig', ['value' => $value]);
+            return $twig->render('@users-address/choice/template.html.twig', ['value' => $value]);
         }
     }
 }
