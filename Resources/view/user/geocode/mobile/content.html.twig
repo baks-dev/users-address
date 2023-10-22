@@ -16,16 +16,14 @@
             </div>
         </div>
 
-        <div class="modal-body">
-
-            <iframe
-                    src="https://yandex.ru/maps/{{ form.vars.data.longitude and form.vars.data.latitude ? '?whatshere[point]='~ form.vars.data.longitude ~','~ form.vars.data.latitude ~'&whatshere[zoom]=20' }}"
-                    frameborder="0"
-                    style="height: 300px;"
-                    class="mb-3 w-100"
+        <div class="map-wrap d-flex overflow-hidden rounded-4  p-3">
+            <div id="map" class='w-100 bg-cover'
+                 style='height: 300px; background-image: url("/triangle/map.webp");'
             >
+            </div>
+        </div>
 
-            </iframe>
+        <div class="modal-body">
 
             {% if form.vars.data.house %}
                 <h4>
