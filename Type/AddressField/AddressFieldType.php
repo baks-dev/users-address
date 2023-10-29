@@ -26,16 +26,14 @@ final class AddressFieldType extends TextType
 	
 	public function convertToDatabaseValue($value, AbstractPlatform $platform): mixed
 	{
-		return $value instanceof AddressField ? $value->getValue() : $value;
+		return (string) $value;
 	}
-	
-	
+
 	public function convertToPHPValue($value, AbstractPlatform $platform): mixed
 	{
 		return !empty($value) ? new AddressField($value) : null;
 	}
-	
-	
+
 	public function getName(): string
 	{
 		return AddressField::TYPE;
