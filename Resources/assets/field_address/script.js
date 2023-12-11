@@ -159,8 +159,26 @@ function geocodeAddress() {
                 });
 
 
-                /** Инициируем карту */
-                ymaps.ready(init);
+                let repeat = 100;
+                setTimeout(function UMzLVLSAMe() {
+
+                    if (repeat >= 1000) { return; }
+
+                    if (typeof ymaps === 'object') {
+                        /** Инициируем карту */
+                        ymaps.ready(init);
+                    }
+
+                    repeat = repeat * 2;
+                    setTimeout(UMzLVLSAMe, repeat);
+
+                }, 100);
+
+
+
+
+
+
 
 
                 modal.querySelectorAll('form').forEach(function (forms) {
