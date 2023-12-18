@@ -49,7 +49,7 @@ final class IndexController extends AbstractController
         $searchForm->handleRequest($request);
 
         // Получаем список
-        $query = $allProfileType->get($search);
+        $query = $allProfileType->find($search);
 
         return $this->render(
             [

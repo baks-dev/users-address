@@ -20,7 +20,7 @@
  *  THE SOFTWARE.
  */
 
-const addressLength = 10;
+addressLength = 10;
 
 dataUserAddress = null;
 
