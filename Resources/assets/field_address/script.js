@@ -24,6 +24,8 @@ addressLength = 10;
 
 dataUserAddress = null;
 
+geoModal = null;
+
 
 function initAdddress()
 {
@@ -105,11 +107,16 @@ function geocodeAddress() {
         if (request.readyState === 4 && request.status === 200)
         {
 
-            const modal = document.getElementById('modal');
+            const modal = document.getElementById('modal_address');
+
+            // if (!modal)
+            // {
+            //     modal = document.getElementById('modal');
+            // }
 
             modal.innerHTML = request.responseText;
 
-            const geoModal = new bootstrap.Modal(modal, {
+            geoModal = new bootstrap.Modal(modal, {
                 keyboard: false
             })
 
@@ -117,7 +124,7 @@ function geocodeAddress() {
             geoModal.show();
 
             /* делаем глобальную отметку о завершении запроса */
-            eventEmitter.dispatchEvent(new Event('complete'));
+            //eventEmitter.dispatchEvent(new Event('complete'));
 
             /* Сбрасываем содержимое модального окна при закрытии */
             modal.addEventListener('hidden.bs.modal', function (event) {
@@ -173,11 +180,6 @@ function geocodeAddress() {
                     setTimeout(UMzLVLSAMe, repeat);
 
                 }, 100);
-
-
-
-
-
 
 
 
@@ -247,7 +249,9 @@ function replaceGeocodeAddress() {
         if (request.readyState === 4 && request.status === 200)
         {
 
-            const modal = document.getElementById('modal');
+            //const modal = document.getElementById('modal');
+
+            const modal = document.getElementById('modal_address');
 
             modal.innerHTML = request.responseText;
 
@@ -292,8 +296,16 @@ function replaceGeocodeAddress() {
 
                     /* событие отправки формы */
                     forms.addEventListener('submit', function (event) {
+
+                        console.log();
+
                         event.preventDefault();
+
                         submitAddressForm(forms);
+
+                        //geoModal.hide();
+
+
                         return false;
                     });
                 });
@@ -397,9 +409,9 @@ async function submitAddressForm(forms) {
             }
 
             /* Закрываем модальное окно */
-            let myModalEl = document.querySelector('#modal')
-            let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
-            modal.hide();
+            //let myModalEl = document.querySelector('#modal')
+            //let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
+            geoModal.hide();
 
             if (response.status === 302) {
                 window.location.href = '/refresh';
