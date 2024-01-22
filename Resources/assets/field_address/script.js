@@ -107,12 +107,12 @@ function geocodeAddress() {
         if (request.readyState === 4 && request.status === 200)
         {
 
-            const modal = document.getElementById('modal_address');
+            let modal = document.getElementById('modal_address');
 
-            // if (!modal)
-            // {
-            //     modal = document.getElementById('modal');
-            // }
+            if (!modal)
+            {
+                modal = document.getElementById('modal');
+            }
 
             modal.innerHTML = request.responseText;
 
@@ -249,9 +249,12 @@ function replaceGeocodeAddress() {
         if (request.readyState === 4 && request.status === 200)
         {
 
-            //const modal = document.getElementById('modal');
+            let modal = document.getElementById('modal_address');
 
-            const modal = document.getElementById('modal_address');
+            if (!modal)
+            {
+                modal = document.getElementById('modal');
+            }
 
             modal.innerHTML = request.responseText;
 
