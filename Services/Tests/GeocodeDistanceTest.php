@@ -71,7 +71,9 @@ final class GeocodeDistanceTest extends TestCase
             ->toLatitude(10)
             ->toLongitude(20);
 
-        $this->assertTrue(is_nan($geocode->getDistance()));
+        $this->assertEquals($geocode->getDistance(), 0, );
+
+        //$this->assertTrue(is_nan($geocode->getDistance()));
     }
 
     public function testGetDistance(): void

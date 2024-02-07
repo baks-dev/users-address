@@ -37,7 +37,6 @@ function initAdddress()
 
             dataUserAddress.forEach(function (area)
             {
-
                 if (area.tagName === 'SELECT')
                 {
                     /** Присваиваем адрес по выбору из списка */

@@ -78,10 +78,16 @@ final class GeocodeDistance
          * Если начальная точка равна конечной точке - возвращаем NAN
          * для проверки можно использовать is_nan($result)
          */
+//        if ($this->isEquals())
+//        {
+//            return NAN;
+//        }
+
         if ($this->isEquals())
         {
-            return NAN;
+            return 0;
         }
+
 
         $dLat = deg2rad($this->toLatitude - $this->fromLatitude);
         $dLon = deg2rad($this->toLongitude - $this->fromLongitude);
