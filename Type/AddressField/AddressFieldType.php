@@ -20,16 +20,17 @@ namespace BaksDev\Users\Address\Type\AddressField;
 
 use Doctrine\DBAL\Platforms\AbstractPlatform;
 use Doctrine\DBAL\Types\TextType;
+use Doctrine\DBAL\Types\Type;
 
-final class AddressFieldType extends TextType
+final class AddressFieldType extends Type
 {
 	
-	public function convertToDatabaseValue($value, AbstractPlatform $platform): mixed
+	public function convertToDatabaseValue($value, AbstractPlatform $platform): string
 	{
 		return (string) $value;
 	}
 
-	public function convertToPHPValue($value, AbstractPlatform $platform): mixed
+	public function convertToPHPValue($value, AbstractPlatform $platform): ?AddressField
 	{
 		return !empty($value) ? new AddressField($value) : null;
 	}
@@ -44,5 +45,10 @@ final class AddressFieldType extends TextType
 	{
 		return true;
 	}
+
+    public function getSQLDeclaration(array $column, AbstractPlatform $platform): string
+    {
+        return $platform->getClobTypeDeclarationSQL($column);
+    }
 	
 }
