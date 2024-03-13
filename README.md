@@ -1,6 +1,6 @@
 # BaksDev Users Address
 
-[![Version](https://img.shields.io/badge/version-7.0.10-blue)](https://github.com/baks-dev/users-address/releases)
+[![Version](https://img.shields.io/badge/version-7.0.11-blue)](https://github.com/baks-dev/users-address/releases)
 ![php 8.2+](https://img.shields.io/badge/php-min%208.1-red.svg)
 
 Модуль пользовательских адресов
