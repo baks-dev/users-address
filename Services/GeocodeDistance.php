@@ -40,26 +40,26 @@ final class GeocodeDistance
     private float $toLongitude;
 
     /** Начальная точка отсчета  */
-    public function fromLatitude(float $code)
+    public function fromLatitude(float $code) : self
     {
         $this->fromLatitude = $code;
         return $this;
     }
 
-    public function fromLongitude(float $code)
+    public function fromLongitude(float $code) : self
     {
         $this->fromLongitude = $code;
         return $this;
     }
 
     /** Конечная точка отсчета */
-    public function toLatitude(float $code)
+    public function toLatitude(float $code) : self
     {
         $this->toLatitude = $code;
         return $this;
     }
 
-    public function toLongitude(float $code)
+    public function toLongitude(float $code) : self
     {
         $this->toLongitude = $code;
         return $this;
