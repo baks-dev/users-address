@@ -27,11 +27,12 @@ namespace BaksDev\Users\Address\Repository\GeocodeAddress;
 
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
+use BaksDev\Users\Address\Entity\GeocodeAddress;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
-final class GeocodeAddress implements GeocodeAddressInterface
+final class GeocodeAddressRepository implements GeocodeAddressInterface
 {
     private EntityManagerInterface $entityManager;
 
@@ -49,7 +50,7 @@ final class GeocodeAddress implements GeocodeAddressInterface
         $qb->addSelect('geocode.latitude');
         $qb->addSelect('geocode.address');
 
-        $qb->from(\BaksDev\Users\Address\Entity\GeocodeAddress::TABLE, 'geocode');
+        $qb->from(GeocodeAddress::TABLE, 'geocode');
 
         $qb->where('geocode.latitude = :latitude');
         $qb->setParameter('latitude', $latitude, GpsLatitude::TYPE);
@@ -84,7 +85,7 @@ final class GeocodeAddress implements GeocodeAddressInterface
         $qb->addSelect('geocode.latitude');
         $qb->addSelect('geocode.address');
 
-        $qb->from(\BaksDev\Users\Address\Entity\GeocodeAddress::TABLE, 'geocode');
+        $qb->from(GeocodeAddress::TABLE, 'geocode');
 
         $qb->where('geocode.address = :address');
         $qb->setParameter('address', $address);

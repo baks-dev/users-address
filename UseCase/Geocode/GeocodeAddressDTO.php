@@ -30,7 +30,7 @@ use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Users\Address\Entity\GeocodeAddressInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @see GeocodeAddress */
+/** @see GeocodeAddressRepository */
 final class GeocodeAddressDTO implements GeocodeAddressInterface
 {
     /** Широта */
