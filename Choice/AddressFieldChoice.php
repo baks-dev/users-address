@@ -53,4 +53,9 @@ final class AddressFieldChoice implements FieldsChoiceInterface
 	{
 		return AddressFieldForm::class;
 	}
+
+    public function constraints(): ?array
+    {
+        return null;
+    }
 }
