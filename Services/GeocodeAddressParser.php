@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Users\Address\Services;
 
+use App\Kernel;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressHandler;
@@ -158,38 +159,49 @@ final class GeocodeAddressParser
         //$address = 'Дзержинский'; //https://yandex.ru/maps/?pt=37.849616,55.630944&z=18&l=map
         //$address = 'Россия';
         //$address = 'fdfsdfdsfsdf54sdf4sdf';
+        // Москва, Карельский бульвар 6к1 под
 
         //$address = rawurlencode($address);
         $fileName = md5($address);
 
         $cache = new FilesystemAdapter('users-address');
 
+        if(Kernel::isTestEnvironment())
+        {
+            $cache->delete($fileName);
+        }
+
         /* Кешируем результат GET */
         $content = $cache->get($fileName, function (ItemInterface $item) use ($address) {
+
             $item->expiresAfter(86400 * 30);
 
+            $lang = mb_strtolower($this->translator->getLocale()).'_'.mb_strtoupper($this->translator->getLocale());
+
             /** Получаем конфиг  */
-            $config = $this->httpClient->request('GET', '/2.1/?apikey='.$this->apikey.'&lang='.$this->translator->getLocale());
+            $config = $this->httpClient->request('GET', '/v3/',
+                ['query' => ['apikey' => $this->apikey, 'lang' => $lang]]
+            );
             $config = $config->getContent();
-            $config = explode(')(', $config);
-            $config = substr((string) end($config), 0, -1);
-            $config = json_decode($config);
+
+            /** Получаем токен запроса */
+            preg_match('/"token":"([^"]+)"/', $config, $matches);
+            $tokenRequest = $matches[1];
 
             $data = [
                 'text' => $address,
+                'token' => $tokenRequest,
+                'apikey' => $this->apikey,
                 'format' => 'json',
                 'rspn' => 0,
-                'lang' => $config->lang,
-                'token' => $config->token,
+                'lang' => $lang,
                 'type' => 'geo',
                 'properties' => 'addressdetails',
-                'geocoder_sco' => $config->coordinatesOrder,
                 'origin' => 'jsapi2Geocoder',
-                'apikey' => $config->apikey,
             ];
 
             /** Получаем геоданные */
-            $result = $this->httpClient->request('GET', '/services/search//v2/?'.http_build_query($data));
+            $result = $this->httpClient->request('GET', '/services/search/v2/', ['query' => $data]);
 
             return $result->getContent();
         });

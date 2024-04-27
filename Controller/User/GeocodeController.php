@@ -48,24 +48,22 @@ final class GeocodeController extends AbstractController
         Request $request,
         EntityManagerInterface $entityManager,
         UsersProfileAddressHandler $addressHandler,
-        string|null $address = null,
-        //?string $address = null,
-    ): Response {
-//        if ($address === null)
-//        {
-//            return new Response(status: 404);
-//        }
+        ?string $address = null,
+
+    ): Response
+    {
 
         $UsersProfileAddressDTO = new UsersProfileAddressDTO();
         $UsersProfileAddressDTO->setDesc($address);
 
-        if (!empty($address))
+        if(!empty($address))
         {
             /* Если передан идентификатор адреса */
-            if (preg_match('{^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$}Di', $address))
+            if(preg_match('{^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$}Di', $address))
             {
                 $GeocodeAddress = $entityManager->getRepository(GeocodeAddress::class)->find($address);
-            } elseif ($request->isMethod('GET'))
+            }
+            elseif($request->isMethod('GET'))
             {
                 /** @var GeocodeAddress $var */
                 $GeocodeAddress = $geocodeAddress->getGeocode($address);
@@ -77,7 +75,7 @@ final class GeocodeController extends AbstractController
             $UsersProfileAddressDTO->setDesc($GeocodeAddress->getAddress());
             $UsersProfileAddressDTO->setHouse(($GeocodeAddress->getHouse() !== null));
 
-            if ($this->getProfileUid())
+            if($this->getProfileUid())
             {
                 $UsersProfileAddressDTO->setProfile($this->getProfileUid());
             }
@@ -91,14 +89,14 @@ final class GeocodeController extends AbstractController
 
 
         /*  */
-        if ($form->isSubmitted() && $form->has('geocode'))
+        if($form->isSubmitted() && $form->has('geocode'))
         {
             /* Если пользователь авторизован - прикрепляем адрес */
-            if ($this->getProfileUid() && $form->isValid() )
+            if($this->getProfileUid() && $form->isValid())
             {
                 $UsersProfileAddress = $addressHandler->handle($UsersProfileAddressDTO);
 
-                if ($UsersProfileAddress instanceof UsersProfileAddress)
+                if($UsersProfileAddress instanceof UsersProfileAddress)
                 {
                     return new JsonResponse(
                         [
