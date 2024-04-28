@@ -31,6 +31,7 @@ use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
 use BaksDev\Users\Address\Services\GeocodeAddressParser;
+use function PHPUnit\Framework\assertNotNull;
 
 
 /**
@@ -45,13 +46,9 @@ class GeocodeAddressParserTest extends KernelTestCase
         /** @var GeocodeAddressParser $GeocodeAddressParser */
 
         $GeocodeAddressParser = self::getContainer()->get(GeocodeAddressParser::class);
-        $GeocodeAddress = $GeocodeAddressParser->getGeocode('Москва, Карельский бульвар, 6к1');
+        $GeocodeAddress = $GeocodeAddressParser->getGeocode('Санкт-Петербург');
 
-        dd($GeocodeAddress);
-
+        self::assertNotFalse($GeocodeAddress);
 
     }
-
-
-
 }

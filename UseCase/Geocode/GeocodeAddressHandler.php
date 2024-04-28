@@ -62,18 +62,18 @@ final class GeocodeAddressHandler
             return $uniqid;
         }
 
-
         $GeocodeAddress = $this->entityManager->getRepository(GeocodeAddressEntity\GeocodeAddress::class)->findOneBy(
             ['longitude' => $command->getLongitude(), 'latitude' => $command->getLatitude()]
         );
 
-
-        if(!$GeocodeAddress)
+        if($GeocodeAddress)
         {
-            $GeocodeAddress = new GeocodeAddressEntity\GeocodeAddress();
-            $this->entityManager->persist($GeocodeAddress);
+            return $GeocodeAddress;
         }
 
+
+        $GeocodeAddress = new GeocodeAddressEntity\GeocodeAddress();
+        $this->entityManager->persist($GeocodeAddress);
 
         $GeocodeAddress->setEntity($command);
 
