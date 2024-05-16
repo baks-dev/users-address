@@ -26,7 +26,11 @@ declare(strict_types=1);
 namespace BaksDev\Users\Address\Services;
 
 use App\Kernel;
+use BaksDev\Core\Type\Gps\GpsLatitude;
+use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
+use BaksDev\Users\Address\Repository\AddressByGeocode\AddressByGeocodeInterface;
+use BaksDev\Users\Address\Repository\GeocodeAddress\GeocodeAddressInterface;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressHandler;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -40,27 +44,24 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 final class GeocodeAddressParser
 {
-    private Filesystem $filesystem;
-
-    private string $projectDir;
+    private string $apikey;
 
     private GeocodeAddressHandler $handler;
 
     private TranslatorInterface $translator;
 
-    private string $apikey;
-
     private HttpClientInterface $httpClient;
 
+    private AddressByGeocodeInterface $addressByGeocode;
+
     public function __construct(
-        Filesystem $filesystem,
-        KernelInterface $kernel,
+        AddressByGeocodeInterface $addressByGeocode,
         GeocodeAddressHandler $handler,
         TranslatorInterface $translator,
         #[Autowire(env: 'MAPS_YANDEX_API')] string $apikey
     ) {
-        $this->filesystem = $filesystem;
-        $this->projectDir = $kernel->getProjectDir();
+
+
         $this->handler = $handler;
         $this->translator = $translator;
 
@@ -149,6 +150,9 @@ final class GeocodeAddressParser
         $this->httpClient = HttpClient::create(['headers' => [
             'User-Agent' => $agentArray[$getArrayKey],
         ]])->withOptions(['base_uri' => 'https://api-maps.yandex.ru']);
+
+
+        $this->addressByGeocode = $addressByGeocode;
     }
 
     public function getGeocode(string $address): bool|GeocodeAddress
@@ -161,7 +165,18 @@ final class GeocodeAddressParser
         //$address = 'fdfsdfdsfsdf54sdf4sdf';
         // Москва, Карельский бульвар 6к1 под
 
-        //$address = rawurlencode($address);
+        /** Если строка содержит геоданные - делаем проверку по базе */
+        if (preg_match('/\d+\.\d+(,\s?)\d+\.\d+/', $address)) {
+
+            $geoData = explode(',', $address);
+            $GeocodeAddress = $this->addressByGeocode->find(new GpsLatitude($geoData[0]), new GpsLongitude($geoData[1]));
+
+            if($GeocodeAddress instanceof GeocodeAddress)
+            {
+                return $GeocodeAddress;
+            }
+        }
+
         $fileName = md5($address);
 
         $cache = new FilesystemAdapter('users-address');

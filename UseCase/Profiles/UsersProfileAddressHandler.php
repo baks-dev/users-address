@@ -42,7 +42,8 @@ final class UsersProfileAddressHandler
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         LoggerInterface $logger,
-    ) {
+    )
+    {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
         $this->logger = $logger;
@@ -50,13 +51,14 @@ final class UsersProfileAddressHandler
 
     public function handle(
         UsersProfileAddressDTO $command,
-    ): string|UsersProfileAddress {
+    ): string|UsersProfileAddress
+    {
         /**
          *  Валидация.
          */
         $errors = $this->validator->validate($command);
 
-        if (count($errors) > 0)
+        if(count($errors) > 0)
         {
             /** Ошибка валидации */
             $uniqid = uniqid('', false);
@@ -66,11 +68,14 @@ final class UsersProfileAddressHandler
         }
 
 
-        $UsersProfileAddress = $this->entityManager->getRepository(UsersProfileAddress::class)->findOneBy(
-            ['address' => $command->getAddress(), 'profile' => $command->getProfile()]
-        );
+        $UsersProfileAddress = $this->entityManager
+            ->getRepository(UsersProfileAddress::class)
+            ->findOneBy([
+                'address' => $command->getAddress(),
+                'profile' => $command->getProfile()
+            ]);
 
-        if (!$UsersProfileAddress)
+        if(!$UsersProfileAddress)
         {
             $UsersProfileAddress = new UsersProfileAddress();
             $UsersProfileAddress->setEntity($command);
@@ -78,7 +83,7 @@ final class UsersProfileAddressHandler
             /* Валидация */
             $errors = $this->validator->validate($UsersProfileAddress);
 
-            if (count($errors) > 0)
+            if(count($errors) > 0)
             {
                 /** Ошибка валидации */
                 $uniqid = uniqid('', false);

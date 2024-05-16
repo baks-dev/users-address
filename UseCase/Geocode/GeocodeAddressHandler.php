@@ -25,7 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Users\Address\UseCase\Geocode;
 
-use BaksDev\Users\Address\Entity as GeocodeAddressEntity;
+use BaksDev\Users\Address\Entity\GeocodeAddress;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -48,7 +48,7 @@ final class GeocodeAddressHandler
 
     }
 
-    public function handle(GeocodeAddressDTO $command,): string|GeocodeAddressEntity\GeocodeAddress
+    public function handle(GeocodeAddressDTO $command,): string|GeocodeAddress
     {
 
         /* Валидация DTO */
@@ -62,9 +62,12 @@ final class GeocodeAddressHandler
             return $uniqid;
         }
 
-        $GeocodeAddress = $this->entityManager->getRepository(GeocodeAddressEntity\GeocodeAddress::class)->findOneBy(
-            ['longitude' => $command->getLongitude(), 'latitude' => $command->getLatitude()]
-        );
+        $GeocodeAddress = $this->entityManager
+            ->getRepository(GeocodeAddress::class)
+            ->findOneBy([
+                'longitude' => $command->getLongitude(),
+                'latitude' => $command->getLatitude()
+            ]);
 
         if($GeocodeAddress)
         {
@@ -72,7 +75,7 @@ final class GeocodeAddressHandler
         }
 
 
-        $GeocodeAddress = new GeocodeAddressEntity\GeocodeAddress();
+        $GeocodeAddress = new GeocodeAddress();
         $this->entityManager->persist($GeocodeAddress);
 
         $GeocodeAddress->setEntity($command);
@@ -88,7 +91,6 @@ final class GeocodeAddressHandler
             $this->logger->error($uniqid.': '.$errorsString);
             return $uniqid;
         }
-
 
         /* Сохраняем */
         $this->entityManager->flush();
