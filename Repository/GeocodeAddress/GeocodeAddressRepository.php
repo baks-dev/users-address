@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Users\Address\Repository\GeocodeAddress;
 
+use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
@@ -34,80 +35,50 @@ use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 
 final class GeocodeAddressRepository implements GeocodeAddressInterface
 {
-    private EntityManagerInterface $entityManager;
+    private DBALQueryBuilder $DBALQueryBuilder;
 
-    public function __construct(EntityManagerInterface $entityManager)
+    public function __construct(DBALQueryBuilder $DBALQueryBuilder)
     {
-        $this->entityManager = $entityManager;
+        $this->DBALQueryBuilder = $DBALQueryBuilder;
     }
 
     /** Метод возвращает адрес и геолокацию  */
-    public function fetchGeocodeAddressAssociative(GpsLatitude $latitude, GpsLongitude $longitude) : bool|array
+    public function fetchGeocodeAddressAssociative(GpsLatitude $latitude, GpsLongitude $longitude): bool|array
     {
-        $qb = $this->entityManager->getConnection()->createQueryBuilder();
+        $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-        $qb->select('geocode.longitude');
-        $qb->addSelect('geocode.latitude');
-        $qb->addSelect('geocode.address');
+        $qb
+            ->select('geocode.longitude')
+            ->addSelect('geocode.latitude')
+            ->addSelect('geocode.address')
+            ->from(GeocodeAddress::class, 'geocode');
 
-        $qb->from(GeocodeAddress::TABLE, 'geocode');
+        $qb
+            ->where('geocode.latitude = :latitude')
+            ->setParameter('latitude', $latitude, GpsLatitude::TYPE);
 
-        $qb->where('geocode.latitude = :latitude');
-        $qb->setParameter('latitude', $latitude, GpsLatitude::TYPE);
+        $qb
+            ->andWhere('geocode.longitude = :longitude')
+            ->setParameter('longitude', $longitude, GpsLongitude::TYPE);
 
-        $qb->andWhere('geocode.longitude = :longitude');
-        $qb->setParameter('longitude', $longitude, GpsLongitude::TYPE);
-
-
-        /* Кешируем результат DBAL */
-
-        $cacheFilesystem = new FilesystemAdapter('users-address');
-
-        $config = $this->entityManager->getConnection()->getConfiguration();
-        $config?->setResultCache($cacheFilesystem);
-
-        return $this->entityManager->getConnection()->executeCacheQuery(
-            $qb->getSQL(),
-            $qb->getParameters(),
-            $qb->getParameterTypes(),
-            new QueryCacheProfile(60 * 60 * 24)
-        )->fetchAssociative();
-
+        return $qb->enableCache('users-address', 86400)->fetchAssociative();
     }
 
 
     /** Метод возвращает адрес и геолокацию по адресу */
-    public function fetchGeocodeByAddressAssociative(string $address) : bool|array
+    public function fetchGeocodeByAddressAssociative(string $address): bool|array
     {
-        $qb = $this->entityManager->getConnection()->createQueryBuilder();
+        $qb = $this->DBALQueryBuilder->createQueryBuilder(self::class);
 
-        $qb->select('geocode.longitude');
-        $qb->addSelect('geocode.latitude');
-        $qb->addSelect('geocode.address');
+        $qb
+            ->select('geocode.longitude')
+            ->addSelect('geocode.latitude')
+            ->addSelect('geocode.address')
+            ->from(GeocodeAddress::class, 'geocode')
+            ->where('geocode.address = :address')
+            ->setParameter('address', $address);
 
-        $qb->from(GeocodeAddress::TABLE, 'geocode');
-
-        $qb->where('geocode.address = :address');
-        $qb->setParameter('address', $address);
-
-        //$qb->andWhere('geocode.longitude = :longitude');
-        //$qb->setParameter('longitude', $longitude, GpsLongitude::TYPE);
-
-
-        /* Кешируем результат DBAL */
-
-        $cacheFilesystem = new FilesystemAdapter('users-address');
-
-        $config = $this->entityManager->getConnection()->getConfiguration();
-        $config?->setResultCache($cacheFilesystem);
-
-        return $this->entityManager->getConnection()->executeCacheQuery(
-            $qb->getSQL(),
-            $qb->getParameters(),
-            $qb->getParameterTypes(),
-            new QueryCacheProfile(60 * 60 * 24)
-        )->fetchAssociative();
+        return $qb->enableCache('users-address', 86400)->fetchAssociative();
 
     }
-
 }
