@@ -2,6 +2,7 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+use BaksDev\Users\Address\BaksDevUsersAddressBundle;
 use BaksDev\Users\Address\Type\AddressField\AddressField;
 use BaksDev\Users\Address\Type\AddressField\AddressFieldType;
 use BaksDev\Users\Address\Type\Geocode\GeocodeAddressUid;
@@ -18,11 +19,10 @@ return static function(DoctrineConfig $doctrine) {
 
     $emDefault = $doctrine->orm()->entityManager('default')->autoMapping(true);
 
-    $MODULE = substr(__DIR__, 0, strpos(__DIR__, "Resources"));
 
     $emDefault->mapping('users-address')
         ->type('attribute')
-        ->dir($MODULE.'Entity')
+        ->dir(BaksDevUsersAddressBundle::PATH.'Entity')
         ->isBundle(false)
         ->prefix('BaksDev\Users\Address\Entity')
         ->alias('users-address')
