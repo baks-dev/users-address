@@ -23,14 +23,17 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
+
 use BaksDev\Users\Address\BaksDevUsersAddressBundle;
+
+use BaksDev\Orders\Order\Repository\GeocodeAddress\GeocodeAddressInterface;
+use BaksDev\Users\Address\Repository\GeocodeAddress\GeocodeAddressRepository;
 
 return static function(ContainerConfigurator $configurator): void {
     $services = $configurator->services()
         ->defaults()
         ->autowire()
-        ->autoconfigure()
-    ;
+        ->autoconfigure();
 
     $NAMESPACE = BaksDevUsersAddressBundle::NAMESPACE;
     $PATH = BaksDevUsersAddressBundle::PATH;
@@ -40,6 +43,9 @@ return static function(ContainerConfigurator $configurator): void {
             $PATH.'{Entity,Resources,Type}',
             $PATH.'**/*Message.php',
             $PATH.'**/*DTO.php',
-        ])
-    ;
+        ]);
+
+    $services->alias(
+        GeocodeAddressInterface::class.' $geocodeAddress',
+        GeocodeAddressRepository::class);
 };

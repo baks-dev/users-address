@@ -28,6 +28,7 @@ namespace BaksDev\Users\Address\Repository\GeocodeAddress;
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
+use BaksDev\Orders\Order\Repository\GeocodeAddress\GeocodeAddressInterface;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use Doctrine\DBAL\Cache\QueryCacheProfile;
 use Doctrine\ORM\EntityManagerInterface;

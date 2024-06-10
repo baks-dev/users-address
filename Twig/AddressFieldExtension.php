@@ -25,7 +25,7 @@
 
 namespace BaksDev\Users\Address\Twig;
 
-use BaksDev\Users\Address\Repository\GeocodeAddress\GeocodeAddressInterface;
+use BaksDev\Orders\Order\Repository\GeocodeAddress\GeocodeAddressInterface;
 use BaksDev\Users\Address\Type\AddressField\AddressField;
 use Twig\Environment;
 use Twig\Error\LoaderError;
