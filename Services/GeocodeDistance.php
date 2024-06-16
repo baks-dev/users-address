@@ -40,32 +40,32 @@ final class GeocodeDistance
     private float $toLongitude;
 
     /** Начальная точка отсчета  */
-    public function fromLatitude(float $code) : self
+    public function fromLatitude(float $code): self
     {
         $this->fromLatitude = $code;
         return $this;
     }
 
-    public function fromLongitude(float $code) : self
+    public function fromLongitude(float $code): self
     {
         $this->fromLongitude = $code;
         return $this;
     }
 
     /** Конечная точка отсчета */
-    public function toLatitude(float $code) : self
+    public function toLatitude(float $code): self
     {
         $this->toLatitude = $code;
         return $this;
     }
 
-    public function toLongitude(float $code) : self
+    public function toLongitude(float $code): self
     {
         $this->toLongitude = $code;
         return $this;
     }
 
-    public function isEquals() : bool
+    public function isEquals(): bool
     {
         $this->validate();
 
@@ -78,12 +78,12 @@ final class GeocodeDistance
          * Если начальная точка равна конечной точке - возвращаем NAN
          * для проверки можно использовать is_nan($result)
          */
-//        if ($this->isEquals())
-//        {
-//            return NAN;
-//        }
+        //        if ($this->isEquals())
+        //        {
+        //            return NAN;
+        //        }
 
-        if ($this->isEquals())
+        if($this->isEquals())
         {
             return 0;
         }
@@ -108,7 +108,7 @@ final class GeocodeDistance
          * Если начальная точка равна конечной точке - возвращаем NAN
          * для проверки можно использовать is_nan($result)
          */
-        if ($this->isEquals())
+        if($this->isEquals())
         {
             return 0;
         }
@@ -127,9 +127,9 @@ final class GeocodeDistance
     }
 
 
-    public function validate() : void
+    public function validate(): void
     {
-        if (
+        if(
             empty($this->fromLongitude) ||
             empty($this->fromLatitude) ||
             empty($this->toLongitude) ||

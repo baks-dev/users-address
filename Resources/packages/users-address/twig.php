@@ -28,9 +28,10 @@ use Symfony\Config\TwigConfig;
 
 return static function(TwigConfig $twig) {
 
+    $twig->global('MAPS_YANDEX_API')->value('%env(MAPS_YANDEX_API)%');
+
     $twig->path(
         BaksDevUsersAddressBundle::PATH.'Resources/view',
         'users-address'
     );
-
 };
