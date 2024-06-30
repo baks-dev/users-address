@@ -29,6 +29,7 @@ use BaksDev\Users\Address\Entity\GeocodeAddress;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 final class GeocodeAddressHandler
 {
@@ -40,15 +41,14 @@ final class GeocodeAddressHandler
         EntityManagerInterface $entityManager,
         ValidatorInterface $validator,
         LoggerInterface $logger,
-    )
-    {
+    ) {
         $this->entityManager = $entityManager;
         $this->validator = $validator;
         $this->logger = $logger;
 
     }
 
-    public function handle(GeocodeAddressDTO $command,): string|GeocodeAddress
+    public function handle(GeocodeAddressDTO $command): string|GeocodeAddress
     {
 
         /* Валидация DTO */
@@ -92,8 +92,15 @@ final class GeocodeAddressHandler
             return $uniqid;
         }
 
-        /* Сохраняем */
-        $this->entityManager->flush();
+        try
+        {
+            /* Сохраняем */
+            $this->entityManager->flush();
+        }
+        catch(UniqueConstraintViolationException $exception)
+        {
+            return 'Unique violation';
+        }
 
         return $GeocodeAddress;
     }
