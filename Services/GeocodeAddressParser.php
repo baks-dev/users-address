@@ -152,7 +152,7 @@ final class GeocodeAddressParser
         $this->addressByGeocode = $addressByGeocode;
     }
 
-    public function getGeocode(string $address): bool|GeocodeAddress
+    public function getGeocode(string $address, bool $flush = true): bool|GeocodeAddress
     {
         //$address = 'Дзержинский, Денисьевский проезд, дом 17 стр. 1'; // https://yandex.ru/maps/?pt=37.81628,55.627915&z=18&l=map
         //$address = 'Дзержинский, Денисьевский проезд, дом 17'; // https://yandex.ru/maps/?pt=37.820268,55.628932&z=18&l=map
@@ -221,6 +221,7 @@ final class GeocodeAddressParser
             return $result->getContent();
         });
 
+
         $result = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
 
         $features = current($result->features);
@@ -235,6 +236,7 @@ final class GeocodeAddressParser
             new GpsLatitude($arrCoordinates[1]),
             new GpsLongitude($arrCoordinates[0])
         );
+
 
         if($GeocodeAddress instanceof GeocodeAddress)
         {
@@ -309,7 +311,7 @@ final class GeocodeAddressParser
             }
         }
 
-        $GeocodeAddress = $this->handler->handle($GeocodeAddressDTO);
+        $GeocodeAddress = $this->handler->handle($GeocodeAddressDTO, $flush);
 
         return $GeocodeAddress instanceof GeocodeAddress ? $GeocodeAddress : false;
     }

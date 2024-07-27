@@ -25,43 +25,15 @@ declare(strict_types=1);
 
 namespace BaksDev\Users\Address\UseCase\Geocode;
 
+use BaksDev\Core\Entity\AbstractHandler;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
-use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
-use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
-final class GeocodeAddressHandler
+final class GeocodeAddressHandler extends AbstractHandler
 {
-    private EntityManagerInterface $entityManager;
-    private ValidatorInterface $validator;
-    private LoggerInterface $logger;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        ValidatorInterface $validator,
-        LoggerInterface $logger,
-    ) {
-        $this->entityManager = $entityManager;
-        $this->validator = $validator;
-        $this->logger = $logger;
-
-    }
-
-    public function handle(GeocodeAddressDTO $command): string|GeocodeAddress
+    public function handle(GeocodeAddressDTO $command, bool $flush = true): string|GeocodeAddress
     {
-
-        /* Валидация DTO */
-        $errors = $this->validator->validate($command);
-
-        if(count($errors) > 0)
-        {
-            $uniqid = uniqid('', false);
-            $errorsString = (string) $errors;
-            $this->logger->error($uniqid.': '.$errorsString);
-            return $uniqid;
-        }
-
+        /** Если найдена геолокация - возвращаем */
         $GeocodeAddress = $this->entityManager
             ->getRepository(GeocodeAddress::class)
             ->findOneBy([
@@ -75,31 +47,35 @@ final class GeocodeAddressHandler
         }
 
 
-        $GeocodeAddress = new GeocodeAddress();
-        $this->entityManager->persist($GeocodeAddress);
+        /** Валидация DTO  */
+        $this->validatorCollection->add($command);
 
+        $GeocodeAddress = new GeocodeAddress();
         $GeocodeAddress->setEntity($command);
 
+        $this->entityManager->persist($GeocodeAddress);
 
-        /* Валидация GeocodeAddress */
-        $errors = $this->validator->validate($GeocodeAddress);
+        $this->validatorCollection->add($GeocodeAddress);
 
-        if(count($errors) > 0)
+
+        /** Валидация всех объектов */
+        if($this->validatorCollection->isInvalid())
         {
-            $uniqid = uniqid('', false);
-            $errorsString = (string) $errors;
-            $this->logger->error($uniqid.': '.$errorsString);
-            return $uniqid;
+            return $this->validatorCollection->getErrorUniqid();
         }
 
-        try
+        if($flush)
         {
-            /* Сохраняем */
-            $this->entityManager->flush();
-        }
-        catch(UniqueConstraintViolationException $exception)
-        {
-            return 'Unique violation';
+            try
+            {
+                /* Сохраняем */
+                $this->entityManager->flush();
+
+            }
+            catch(UniqueConstraintViolationException $exception)
+            {
+                return 'Unique violation';
+            }
         }
 
         return $GeocodeAddress;
