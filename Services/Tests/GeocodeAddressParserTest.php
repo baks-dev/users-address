@@ -26,13 +26,16 @@ declare(strict_types=1);
 namespace BaksDev\Users\Address\Services\Tests;
 
 use BaksDev\Core\Doctrine\DBALQueryBuilder;
+use BaksDev\Users\Address\Entity\GeocodeAddress;
+use BaksDev\Users\Address\Type\Geocode\GeocodeAddressUid;
+use BaksDev\Users\Address\Type\Id\UsersAddressUid;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
 use BaksDev\Users\Address\Services\GeocodeAddressParser;
-use function PHPUnit\Framework\assertNotNull;
 
+use function PHPUnit\Framework\assertNotNull;
 
 /**
  * @group geocode-address
@@ -41,12 +44,31 @@ use function PHPUnit\Framework\assertNotNull;
 #[When(env: 'test')]
 class GeocodeAddressParserTest extends KernelTestCase
 {
+    public static function setUpBeforeClass(): void
+    {
+        /** @var EntityManagerInterface $em */
+        $em = self::getContainer()->get(EntityManagerInterface::class);
+
+        $main = $em->getRepository(GeocodeAddress::class)
+            ->find(GeocodeAddressUid::TEST);
+
+        if($main)
+        {
+            $em->remove($main);
+        }
+
+        $em->flush();
+        $em->clear();
+    }
+
+
     public function testUseCase(): void
     {
         /** @var GeocodeAddressParser $GeocodeAddressParser */
 
         $GeocodeAddressParser = self::getContainer()->get(GeocodeAddressParser::class);
-        $GeocodeAddress = $GeocodeAddressParser->getGeocode('Санкт-Петербург');
+        //$GeocodeAddress = $GeocodeAddressParser->getGeocode('Санкт-Петербург');
+        $GeocodeAddress = $GeocodeAddressParser->getGeocode('Балашиха Пионерская 14');
 
         self::assertNotFalse($GeocodeAddress);
 

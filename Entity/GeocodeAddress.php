@@ -60,7 +60,6 @@ class GeocodeAddress extends EntityState
     #[Assert\NotBlank]
     #[ORM\Column(type: GpsLongitude::TYPE)]
     private GpsLongitude $longitude;
-    
 
     /** Страна */
     #[ORM\Column(type: Types::STRING, nullable: true)]
@@ -133,7 +132,7 @@ class GeocodeAddress extends EntityState
     {
         $dto = is_string($dto) && class_exists($dto) ? new $dto() : $dto;
 
-        if ($dto instanceof GeocodeAddressInterface || $dto instanceof self)
+        if($dto instanceof GeocodeAddressInterface || $dto instanceof self)
         {
             return parent::getDto($dto);
         }
@@ -143,7 +142,7 @@ class GeocodeAddress extends EntityState
 
     public function setEntity($dto): mixed
     {
-        if ($dto instanceof GeocodeAddressInterface || $dto instanceof self)
+        if($dto instanceof GeocodeAddressInterface || $dto instanceof self)
         {
             return parent::setEntity($dto);
         }

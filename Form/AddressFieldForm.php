@@ -31,16 +31,16 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 final class AddressFieldForm extends AbstractType
 {
-	public function configureOptions(OptionsResolver $resolver) : void
-	{
-		$resolver->setDefaults([
+    public function configureOptions(OptionsResolver $resolver): void
+    {
+        $resolver->setDefaults([
             'attr' => ['data-address' => 'true']
-		]);
-	}
-	
-	public function getParent(): string
-	{
-		return TextareaType::class;
-	}
-	
+        ]);
+    }
+
+    public function getParent(): string
+    {
+        return TextareaType::class;
+    }
+
 }

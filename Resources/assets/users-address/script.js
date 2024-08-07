@@ -338,9 +338,9 @@ function replaceGeocodeAddress() {
 
 function init() {
 
-    let geocode = document.getElementById('users_profile_address_form_desc');
-    let latitude = document.getElementById('users_profile_address_form_latitude');
-    let longitude = document.getElementById('users_profile_address_form_longitude');
+    let geocode = document.getElementById('user_address_form_desc');
+    let latitude = document.getElementById('user_address_form_latitude');
+    let longitude = document.getElementById('user_address_form_longitude');
 
     myMap = new ymaps.Map("map", {
         center: [latitude.value, longitude.value],
@@ -460,8 +460,9 @@ async function submitAddressForm(forms) {
 
 function changeAddress(forms) {
 
+    // user_address_form
 
-    if (forms !== false && forms.name === 'users_profile_address_form')
+    if (forms !== false && forms.name === 'user_address_form')
     {
         /** Меняем кнопку submit */
         let btn = forms.querySelector('button[type="submit"]');
@@ -471,7 +472,7 @@ function changeAddress(forms) {
         for (i = 0; i < inputs.length; i++) {
 
             /** Заполняем описание */
-            if (inputs[i].id === 'users_profile_address_form_desc') {
+            if (inputs[i].id === 'user_address_form_desc') {
 
                 document.querySelectorAll('[data-address]').forEach(function (area)
                 {
@@ -482,7 +483,7 @@ function changeAddress(forms) {
 
 
             /** Заполянем аддрес */
-            if (inputs[i].id === 'users_profile_address_form_address') {
+            if (inputs[i].id === 'user_address_form_address') {
 
                 let dataGeocode = document.querySelector('[data-geocode]');
 
@@ -494,7 +495,7 @@ function changeAddress(forms) {
             }
 
             /** Заполянем Широту */
-            if (inputs[i].id === 'users_profile_address_form_latitude') {
+            if (inputs[i].id === 'user_address_form_latitude') {
 
                 let dataLatitude = document.querySelector('[data-latitude]');
 
@@ -505,7 +506,7 @@ function changeAddress(forms) {
             }
 
             /** Заполянем Долготу */
-            if (inputs[i].id === 'users_profile_address_form_longitude') {
+            if (inputs[i].id === 'user_address_form_longitude') {
 
 
                 let dataLongitude = document.querySelector('[data-longitude]');

@@ -31,7 +31,7 @@ use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 
 final class GeocodeAddressHandler extends AbstractHandler
 {
-    public function handle(GeocodeAddressDTO $command, bool $flush = true): string|GeocodeAddress
+    public function handle(GeocodeAddressDTO $command): string|GeocodeAddress
     {
         /** Если найдена геолокация - возвращаем */
         $GeocodeAddress = $this->entityManager
@@ -45,7 +45,6 @@ final class GeocodeAddressHandler extends AbstractHandler
         {
             return $GeocodeAddress;
         }
-
 
         /** Валидация DTO  */
         $this->validatorCollection->add($command);
@@ -64,19 +63,18 @@ final class GeocodeAddressHandler extends AbstractHandler
             return $this->validatorCollection->getErrorUniqid();
         }
 
-        if($flush)
-        {
-            try
-            {
-                /* Сохраняем */
-                $this->entityManager->flush();
 
-            }
-            catch(UniqueConstraintViolationException $exception)
-            {
-                return 'Unique violation';
-            }
+        try
+        {
+            /* Сохраняем */
+            $this->entityManager->flush();
+
         }
+        catch(UniqueConstraintViolationException $exception)
+        {
+            return $exception->getMessage();
+        }
+
 
         return $GeocodeAddress;
     }

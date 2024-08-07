@@ -26,12 +26,15 @@ declare(strict_types=1);
 namespace BaksDev\Users\Address\Controller\User;
 
 use BaksDev\Core\Controller\AbstractController;
+use BaksDev\Core\Messenger\MessageDispatchInterface;
+use BaksDev\Core\Type\Gps\GpsLatitude;
+use BaksDev\Core\Type\Gps\GpsLongitude;
+use BaksDev\Users\Address\Api\YandexMarketAddressRequest;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
-use BaksDev\Users\Address\Entity\UsersProfileAddress;
-use BaksDev\Users\Address\Services\GeocodeAddressParser;
-use BaksDev\Users\Address\UseCase\Profiles\UsersProfileAddressDTO;
-use BaksDev\Users\Address\UseCase\Profiles\UsersProfileAddressForm;
-use BaksDev\Users\Address\UseCase\Profiles\UsersProfileAddressHandler;
+use BaksDev\Users\Address\Repository\AddressByGeocode\AddressByGeocodeInterface;
+use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
+use BaksDev\Users\Address\Form\UserAddress\UserAddressDTO;
+use BaksDev\Users\Address\Form\UserAddress\UserAddressForm;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -44,70 +47,41 @@ final class GeocodeController extends AbstractController
 {
     #[Route('/geocode/{address}', name: 'user.geocode', methods: ['GET', 'POST'])]
     public function index(
-        GeocodeAddressParser $geocodeAddress,
+        YandexMarketAddressRequest $geocodeAddress,
+        AddressByGeocodeInterface $addressByGeocode,
         Request $request,
-        EntityManagerInterface $entityManager,
-        UsersProfileAddressHandler $addressHandler,
+        //EntityManagerInterface $entityManager,
+        //UsersProfileAddressHandler $addressHandler,
+        MessageDispatchInterface $messageDispatch,
         ?string $address = null,
+    ): Response {
 
-    ): Response
-    {
-
-        $UsersProfileAddressDTO = new UsersProfileAddressDTO();
+        $UsersProfileAddressDTO = new UserAddressDTO();
         $UsersProfileAddressDTO->setDesc($address);
+
+        $GeocodeAddressDTO = new GeocodeAddressDTO();
 
         if(!empty($address))
         {
-            /* Если передан идентификатор адреса */
-            if(preg_match('{^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$}Di', $address))
+            /** Если строка содержит геоданные - делаем проверку по базе */
+            if(preg_match('/\d+\.\d+(,\s?)\d+\.\d+/', $address))
             {
-                $GeocodeAddress = $entityManager->getRepository(GeocodeAddress::class)->find($address);
-            }
-            elseif($request->isMethod('GET'))
-            {
-                /** @var GeocodeAddress $var */
-                $GeocodeAddress = $geocodeAddress->getGeocode($address);
-            }
+                $geoData = explode(',', $address);
+                $GeocodeAddress = $addressByGeocode->find(new GpsLatitude($geoData[0]), new GpsLongitude($geoData[1]));
 
-            $UsersProfileAddressDTO->setAddress($GeocodeAddress);
-            $UsersProfileAddressDTO->setLatitude($GeocodeAddress->getLatitude());
-            $UsersProfileAddressDTO->setLongitude($GeocodeAddress->getLongitude());
-            $UsersProfileAddressDTO->setDesc($GeocodeAddress->getAddress());
-            $UsersProfileAddressDTO->setHouse(($GeocodeAddress->getHouse() !== null));
-
-            if($this->getProfileUid())
-            {
-                $UsersProfileAddressDTO->setProfile($this->getProfileUid());
-            }
-        }
-
-        $form = $this->createForm(UsersProfileAddressForm::class, $UsersProfileAddressDTO, [
-            'action' => $this->generateUrl('users-address:user.geocode', ['address' => $UsersProfileAddressDTO->getAddress()]),
-        ]);
-
-        $form->handleRequest($request);
-
-
-        /*  */
-        if($form->isSubmitted() && $form->has('geocode'))
-        {
-            /* Если пользователь авторизован - прикрепляем адрес */
-            if($this->getProfileUid() && $form->isValid())
-            {
-                $UsersProfileAddress = $addressHandler->handle($UsersProfileAddressDTO);
-
-                if($UsersProfileAddress instanceof UsersProfileAddress)
+                if($GeocodeAddress instanceof GeocodeAddress)
                 {
-                    return new JsonResponse(
-                        [
-                            'type' => 'success',
-                            'header' => 'Ваш адрес',
-                            'message' => $UsersProfileAddressDTO->getDesc(),
-                            'status' => 200,
-                        ]
-                    );
+                    $GeocodeAddress->getDto($GeocodeAddressDTO);
                 }
+            }
 
+            if(null === $GeocodeAddressDTO->getAddress())
+            {
+                $GeocodeAddressDTO = $geocodeAddress->getAddress($address);
+            }
+
+            if(null === $GeocodeAddressDTO->getAddress())
+            {
                 return new JsonResponse(
                     [
                         'type' => 'danger',
@@ -119,11 +93,38 @@ final class GeocodeController extends AbstractController
                 );
             }
 
+            /** Присваиваем геоданные пользовательской форме */
+            $UsersProfileAddressDTO->setLatitude($GeocodeAddressDTO->getLatitude());
+            $UsersProfileAddressDTO->setLongitude($GeocodeAddressDTO->getLongitude());
+            $UsersProfileAddressDTO->setDesc($GeocodeAddressDTO->getAddress());
+            $UsersProfileAddressDTO->setHouse(($GeocodeAddressDTO->getHouse() !== null));
+
+            $messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');
+        }
+
+
+        $form = $this->createForm(UserAddressForm::class, $UsersProfileAddressDTO, [
+            'action' => $this->generateUrl(
+                'users-address:user.geocode',
+                ['address' => $UsersProfileAddressDTO->getLatitude().','.$UsersProfileAddressDTO->getLongitude()]
+            ),
+        ]);
+
+        $form->handleRequest($request);
+
+
+        //        if($form->isSubmitted() && !$form->isValid())
+        //        {
+        //            dd($form->getErrors());
+        //        }
+
+        if($form->isSubmitted() && $form->isValid() && $form->has('geocode'))
+        {
             return new JsonResponse(
                 [
                     'type' => 'success',
                     'header' => 'Ваш адрес',
-                    'message' => $UsersProfileAddressDTO->getDesc(),
+                    'message' => $GeocodeAddressDTO->getAddress(),
                     'status' => 200,
                 ]
             );
@@ -133,4 +134,6 @@ final class GeocodeController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+
 }

@@ -28,11 +28,16 @@ namespace BaksDev\Users\Address\UseCase\Geocode;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Users\Address\Entity\GeocodeAddressInterface;
+use BaksDev\Users\Address\Type\Geocode\GeocodeAddressUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
-/** @see GeocodeAddressRepository */
+/** @see GeocodeAddress */
 final class GeocodeAddressDTO implements GeocodeAddressInterface
 {
+    /** ID */
+    #[Assert\Uuid]
+    private ?GeocodeAddressUid $id = null;
+
     /** Широта */
     #[Assert\NotBlank]
     private GpsLatitude $latitude;
@@ -42,30 +47,38 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
     private GpsLongitude $longitude;
 
     /** Страна */
-    private ?string $country;
+    private ?string $country = null;
 
     /** Почтовый индекс */
-    private ?string $postal;
+    private ?string $postal = null;
 
     /** Область, регион */
-    private ?string $area;
+    private ?string $area = null;
 
     /** Город */
-    private ?string $locality;
+    private ?string $locality = null;
 
     /** Улица */
-    private ?string $street;
+    private ?string $street = null;
 
     /** Дом */
-    private ?string $house;
+    private ?string $house = null;
 
     /** Полный адрес */
-    private ?string $address;
+    private ?string $address = null;
 
-    public function __construct($longitude, $latitude)
+    /**
+     * Id
+     */
+    public function getId(): ?GeocodeAddressUid
     {
-        $this->latitude = new GpsLatitude($latitude);
-        $this->longitude = new GpsLongitude($longitude);
+        return $this->id;
+    }
+
+    public function setId(?GeocodeAddressUid $id): self
+    {
+        $this->id = $id;
+        return $this;
     }
 
     /**
@@ -76,9 +89,14 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->longitude;
     }
 
-    public function setLongitude(string $longitude): void
+    public function setLongitude(float|string|GpsLongitude $longitude): void
     {
-        $this->longitude = new GpsLongitude($longitude);
+        if(($longitude instanceof GpsLongitude) === false)
+        {
+            $longitude = new GpsLongitude($longitude);
+        }
+
+        $this->longitude = $longitude;
     }
 
     /**
@@ -89,8 +107,13 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->latitude;
     }
 
-    public function setLatitude(string $latitude): void
+    public function setLatitude(float|string|GpsLatitude $latitude): void
     {
+        if(($latitude instanceof GpsLatitude) === false)
+        {
+            $latitude = new GpsLatitude($latitude);
+        }
+
         $this->latitude = new GpsLatitude($latitude);
     }
 

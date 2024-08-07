@@ -26,7 +26,7 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 final class GeocodeControllerTest extends WebTestCase
 {
-    private string $geocode = 'Санкт-Петербург';
+    private string $geocode = 'Балашиха Пионерская 14';
 
     private const URL = '/geocode/%s';
 
