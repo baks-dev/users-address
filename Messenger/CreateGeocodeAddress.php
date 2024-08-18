@@ -49,7 +49,7 @@ final readonly class CreateGeocodeAddress
 
         if(!$handle instanceof GeocodeAddress)
         {
-            $this->logger->critical('Ошибка при сохранении адреса геолокации', [__FILE__.':'.__LINE__]);
+            $this->logger->critical('Ошибка при сохранении адреса геолокации', [self::class.':'.__LINE__]);
         }
     }
 }
