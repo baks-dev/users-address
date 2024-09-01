@@ -72,8 +72,13 @@ final class YandexMarketAddressRequest
         $AddressDetails = $GeocoderMetaData->Address;
 
         $GeocodeAddressDTO = new GeocodeAddressDTO();
-        $GeocodeAddressDTO->setLatitude($arrCoordinates[1]);
-        $GeocodeAddressDTO->setLongitude($arrCoordinates[0]);
+
+        if(isset($arrCoordinates[1], $arrCoordinates[0]))
+        {
+            $GeocodeAddressDTO->setLatitude($arrCoordinates[1]);
+            $GeocodeAddressDTO->setLongitude($arrCoordinates[0]);
+        }
+
         $GeocodeAddressDTO->setAddress($AddressDetails->formatted);
         $GeocodeAddressDTO->setPostal($AddressDetails->postal_code ?? null);
 
