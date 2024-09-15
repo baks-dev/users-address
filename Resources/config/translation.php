@@ -24,14 +24,12 @@
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Users\Address\BaksDevUsersAddressBundle;
-use Symfony\Config\TwigConfig;
+use Symfony\Config\FrameworkConfig;
 
-return static function(TwigConfig $twig) {
+return static function (FrameworkConfig $config) {
 
-    $twig->global('MAPS_YANDEX_API')->value('%env(MAPS_YANDEX_API)%');
+    $config
+        ->translator()
+        ->paths([BaksDevUsersAddressBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'translations', ''])]); // .'Resources/translations/']);
 
-    $twig->path(
-        BaksDevUsersAddressBundle::PATH.'Resources/view',
-        'users-address'
-    );
 };

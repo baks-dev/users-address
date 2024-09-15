@@ -23,29 +23,15 @@
 
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
-
 use BaksDev\Users\Address\BaksDevUsersAddressBundle;
+use Symfony\Config\TwigConfig;
 
-use BaksDev\Orders\Order\Repository\GeocodeAddress\GeocodeAddressInterface;
-use BaksDev\Users\Address\Repository\GeocodeAddress\GeocodeAddressRepository;
+return static function (TwigConfig $twig) {
 
-return static function(ContainerConfigurator $configurator): void {
-    $services = $configurator->services()
-        ->defaults()
-        ->autowire()
-        ->autoconfigure();
+    $twig->global('MAPS_YANDEX_API')->value('%env(MAPS_YANDEX_API)%');
 
-    $NAMESPACE = BaksDevUsersAddressBundle::NAMESPACE;
-    $PATH = BaksDevUsersAddressBundle::PATH;
-
-    $services->load($NAMESPACE, $PATH)
-        ->exclude([
-            $PATH.'{Entity,Resources,Type}',
-            $PATH.'**/*Message.php',
-            $PATH.'**/*DTO.php',
-        ]);
-
-    $services->alias(
-        GeocodeAddressInterface::class.' $geocodeAddress',
-        GeocodeAddressRepository::class);
+    $twig->path(
+        BaksDevUsersAddressBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'view', '']), // .'Resources/view',
+        'users-address'
+    );
 };

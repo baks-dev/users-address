@@ -24,12 +24,29 @@
 namespace Symfony\Component\DependencyInjection\Loader\Configurator;
 
 use BaksDev\Users\Address\BaksDevUsersAddressBundle;
-use Symfony\Config\FrameworkConfig;
 
-return static function(FrameworkConfig $config) {
+use BaksDev\Orders\Order\Repository\GeocodeAddress\GeocodeAddressInterface;
+use BaksDev\Users\Address\Repository\GeocodeAddress\GeocodeAddressRepository;
 
-    $config
-        ->translator()
-        ->paths([BaksDevUsersAddressBundle::PATH.'Resources/translations/']);
+return static function (ContainerConfigurator $configurator): void {
+    $services = $configurator->services()
+        ->defaults()
+        ->autowire()
+        ->autoconfigure();
 
+    $NAMESPACE = BaksDevUsersAddressBundle::NAMESPACE;
+    $PATH = BaksDevUsersAddressBundle::PATH;
+
+    $services->load($NAMESPACE, $PATH)
+        ->exclude([
+            $PATH.'{Entity,Resources,Type}',
+            $PATH.'**'.DIRECTORY_SEPARATOR.'*Message.php',
+            $PATH.'**'.DIRECTORY_SEPARATOR.'*DTO.php',
+            $PATH.'**'.DIRECTORY_SEPARATOR.'*Test.php',
+        ]);
+
+    $services->alias(
+        GeocodeAddressInterface::class.' $geocodeAddress',
+        GeocodeAddressRepository::class
+    );
 };
