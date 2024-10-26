@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -33,11 +33,8 @@ use BaksDev\Users\Address\Api\YandexMarketAddressRequest;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\Repository\AddressByGeocode\AddressByGeocodeInterface;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
-use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressHandler;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpClient\HttpClient;
-use Symfony\Contracts\Cache\ItemInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 
@@ -59,7 +56,8 @@ final class GeocodeAddressParser
         private readonly MessageDispatchInterface $messageDispatch,
         private readonly TranslatorInterface $translator,
         #[Autowire(env: 'MAPS_YANDEX_API')] private readonly string $apikey
-    ) {
+    )
+    {
 
 
         //$this->handler = $handler;
@@ -264,82 +262,78 @@ final class GeocodeAddressParser
         return $GeocodeAddressDTO;
 
 
-
         //$GeocodeAddressDTO = new GeocodeAddressDTO($arrCoordinates[0], $arrCoordinates[1]);
-//        $GeocodeAddressDTO->setLatitude($arrCoordinates[1]);
-//        $GeocodeAddressDTO->setLongitude($arrCoordinates[0]);
-//        $GeocodeAddressDTO->setAddress($GeocoderMetaData->text); // Полный адрес
-//        $GeocodeAddressDTO->setCountry($AddressDetails->Country->CountryName); // Страна
+        //        $GeocodeAddressDTO->setLatitude($arrCoordinates[1]);
+        //        $GeocodeAddressDTO->setLongitude($arrCoordinates[0]);
+        //        $GeocodeAddressDTO->setAddress($GeocoderMetaData->text); // Полный адрес
+        //        $GeocodeAddressDTO->setCountry($AddressDetails->Country->CountryName); // Страна
 
-//        /* Если адрес региональный */
-//        if(isset($AddressDetails->Country->AdministrativeArea))
-//        {
-//
-//            /* Область, регион */
-//            if(isset($AddressDetails->Country->AdministrativeArea->AdministrativeAreaName))
-//            {
-//                $GeocodeAddressDTO->setArea($AddressDetails->Country->AdministrativeArea->AdministrativeAreaName);
-//            }
-//
-//            /* Город */
-//            if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->LocalityName))
-//            {
-//                $GeocodeAddressDTO->setLocality($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->LocalityName);
-//            }
-//
-//            if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare))
-//            {
-//                // Улица
-//                if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->ThoroughfareName))
-//                {
-//                    $GeocodeAddressDTO->setStreet($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->ThoroughfareName);
-//                }
-//
-//                if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise))
-//                {
-//                    // почтовый индекс
-//                    if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise->PostalCode->PostalCodeNumber))
-//                    {
-//                        $GeocodeAddressDTO->setPostal($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise->PostalCode->PostalCodeNumber);
-//                    }
-//
-//                    // номер здания
-//                    if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise->PremiseNumber))
-//                    {
-//                        $GeocodeAddressDTO->setHouse($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise->PremiseNumber);
-//                    }
-//                }
-//            }
-//            elseif(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare))
-//            {
-//                // Улица
-//                if(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->ThoroughfareName))
-//                {
-//                    $GeocodeAddressDTO->setStreet($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->ThoroughfareName);
-//                }
-//
-//                if(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise))
-//                {
-//                    // почтовый индекс
-//                    if(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise->PostalCode->PostalCodeNumber))
-//                    {
-//                        $GeocodeAddressDTO->setPostal($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise->PostalCode->PostalCodeNumber);
-//                    }
-//
-//                    // номер здания
-//                    if(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise->PremiseNumber))
-//                    {
-//                        $GeocodeAddressDTO->setHouse($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise->PremiseNumber);
-//                    }
-//                }
-//            }
-//        }
+        //        /* Если адрес региональный */
+        //        if(isset($AddressDetails->Country->AdministrativeArea))
+        //        {
+        //
+        //            /* Область, регион */
+        //            if(isset($AddressDetails->Country->AdministrativeArea->AdministrativeAreaName))
+        //            {
+        //                $GeocodeAddressDTO->setArea($AddressDetails->Country->AdministrativeArea->AdministrativeAreaName);
+        //            }
+        //
+        //            /* Город */
+        //            if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->LocalityName))
+        //            {
+        //                $GeocodeAddressDTO->setLocality($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->LocalityName);
+        //            }
+        //
+        //            if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare))
+        //            {
+        //                // Улица
+        //                if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->ThoroughfareName))
+        //                {
+        //                    $GeocodeAddressDTO->setStreet($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->ThoroughfareName);
+        //                }
+        //
+        //                if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise))
+        //                {
+        //                    // почтовый индекс
+        //                    if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise->PostalCode->PostalCodeNumber))
+        //                    {
+        //                        $GeocodeAddressDTO->setPostal($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise->PostalCode->PostalCodeNumber);
+        //                    }
+        //
+        //                    // номер здания
+        //                    if(isset($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise->PremiseNumber))
+        //                    {
+        //                        $GeocodeAddressDTO->setHouse($AddressDetails->Country->AdministrativeArea->SubAdministrativeArea->Locality->Thoroughfare->Premise->PremiseNumber);
+        //                    }
+        //                }
+        //            }
+        //            elseif(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare))
+        //            {
+        //                // Улица
+        //                if(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->ThoroughfareName))
+        //                {
+        //                    $GeocodeAddressDTO->setStreet($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->ThoroughfareName);
+        //                }
+        //
+        //                if(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise))
+        //                {
+        //                    // почтовый индекс
+        //                    if(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise->PostalCode->PostalCodeNumber))
+        //                    {
+        //                        $GeocodeAddressDTO->setPostal($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise->PostalCode->PostalCodeNumber);
+        //                    }
+        //
+        //                    // номер здания
+        //                    if(isset($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise->PremiseNumber))
+        //                    {
+        //                        $GeocodeAddressDTO->setHouse($AddressDetails->Country->AdministrativeArea->Locality->Thoroughfare->Premise->PremiseNumber);
+        //                    }
+        //                }
+        //            }
+        //        }
 
 
         //dd($GeocodeAddressDTO);
-
-
-
 
 
     }

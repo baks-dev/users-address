@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2024.  Baks.dev <admin@baks.dev>
- *
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -26,6 +26,7 @@ declare(strict_types=1);
 namespace BaksDev\Users\Address\Api;
 
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
+use Exception;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -33,13 +34,13 @@ final class YandexMarketAddressRequest
 {
     public function __construct(private readonly YandexMarketTokenRequest $tokenRequest) {}
 
-    public function getAddress(string $address): GeocodeAddressDTO
+    public function getAddress(string $address): GeocodeAddressDTO|false
     {
         $cache = new FilesystemAdapter('users-address');
         $fileName = md5($address);
 
         /* Кешируем результат на 30 дней */
-        $content = $cache->get($fileName, function (ItemInterface $item) use ($address) {
+        $content = $cache->get($fileName, function(ItemInterface $item) use ($address) {
 
             $item->expiresAfter(86400 * 30);
 
@@ -57,11 +58,24 @@ final class YandexMarketAddressRequest
                 'origin' => 'jsapi2Geocoder',
             ];
 
-            /** Получаем геоданные */
-            $result = $this->tokenRequest->getHttpClient()->request('GET', '/services/search/v2/', ['query' => $data]);
+            try
+            {
+                /** Получаем геоданные */
+                $result = $this->tokenRequest->getHttpClient()->request('GET', '/services/search/v2/', ['query' => $data]);
+                $content = $result->getContent();
+            }
+            catch(Exception)
+            {
+                return false;
+            }
 
-            return $result->getContent();
+            return $content;
         });
+
+        if(false === $content || false === json_validate($content, 512, JSON_THROW_ON_ERROR))
+        {
+            return false;
+        }
 
         $result = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
 

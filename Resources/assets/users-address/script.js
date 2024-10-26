@@ -1,16 +1,16 @@
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -29,26 +29,28 @@ geoModal = null;
 
 function initAdddress()
 {
-    setTimeout(function initAdddress() {
+    setTimeout(function initAdddress()
+    {
 
         dataUserAddress = document.querySelectorAll('[data-address]');
 
-        if (dataUserAddress) {
+        if(dataUserAddress)
+        {
 
-            dataUserAddress.forEach(function (area)
+            dataUserAddress.forEach(function(area)
             {
-                if (area.tagName === 'SELECT')
+                if(area.tagName === 'SELECT')
                 {
                     /** Присваиваем адрес по выбору из списка */
-                    area.addEventListener("change", (event) => {
+                    area.addEventListener("change", (event) =>
+                    {
 
                         document.querySelector('[data-latitude]').value = area.options[area.selectedIndex].dataset.lati;
                         document.querySelector('[data-longitude]').value = area.options[area.selectedIndex].dataset.longi;
 
                         //document.querySelector('[data-geocode]').value = area.options[area.selectedIndex].dataset.value;
                     });
-                }
-                else
+                } else
                 {
                     /** Присваиваем адрес по карте */
                     area.addEventListener('focus', geocodeAddress);
@@ -61,7 +63,6 @@ function initAdddress()
 
                 //area.addEventListener('input', geocodeAddress.debounce(2000));
                 //area.addEventListener('blur', geocodeAddress);
-
 
 
                 //setTimeout(initGeocodeAddress, 100);
@@ -80,7 +81,8 @@ function initAdddress()
 
 initAdddress();
 
-function geocodeAddress() {
+function geocodeAddress()
+{
 
 
     /* Создаём объект класса XMLHttpRequest */
@@ -91,7 +93,7 @@ function geocodeAddress() {
 
     let address = this.value;
     address = address.replace('/', '-')
-    let url = '/geocode/'+address;
+    let url = '/geocode/' + address;
 
     /* Указываем метод соединения GET и путь к файлу на сервере */
     request.open('GET', url);
@@ -101,14 +103,15 @@ function geocodeAddress() {
 
 
     /* Получаем ответ от сервера на запрос*/
-    request.addEventListener("readystatechange", function (evemnt) {
+    request.addEventListener("readystatechange", function(evemnt)
+    {
         /* request.readyState - возвращает текущее состояние объекта XHR(XMLHttpRequest) */
-        if (request.readyState === 4 && request.status === 200)
+        if(request.readyState === 4 && request.status === 200)
         {
 
             let modal = document.getElementById('modal_address');
 
-            if (!modal)
+            if(!modal)
             {
                 modal = document.getElementById('modal');
             }
@@ -126,7 +129,8 @@ function geocodeAddress() {
             //eventEmitter.dispatchEvent(new Event('complete'));
 
             /* Сбрасываем содержимое модального окна при закрытии */
-            modal.addEventListener('hidden.bs.modal', function (event) {
+            modal.addEventListener('hidden.bs.modal', function(event)
+            {
                 this.innerHTML = '';
             })
 
@@ -136,41 +140,45 @@ function geocodeAddress() {
             // });
 
 
-            modal.addEventListener('shown.bs.modal', function (event)
+            modal.addEventListener('shown.bs.modal', function(event)
             {
 
-                modal.querySelectorAll('[data-address]').forEach(function (area)
+                modal.querySelectorAll('[data-address]').forEach(function(area)
                 {
-                        if (typeof replaceGeocodeAddress.debounce === 'function')
+                    if(typeof replaceGeocodeAddress.debounce === 'function')
+                    {
+                        area.addEventListener('input', function(event)
                         {
-                            area.addEventListener('input', function (event) {
 
-                                /** Блокируем кнопку и показываем прелоад */
-                                modal.querySelectorAll('.spinner-border').forEach(function (indicator)
-                                {
-                                    btn = indicator.closest('button');
+                            /** Блокируем кнопку и показываем прелоад */
+                            modal.querySelectorAll('.spinner-border').forEach(function(indicator)
+                            {
+                                btn = indicator.closest('button');
 
-                                    indicator.classList.remove('d-none');
-                                    btn.disabled = true;
-                                    btn.type = 'button';
-                                });
-
-
+                                indicator.classList.remove('d-none');
+                                btn.disabled = true;
+                                btn.type = 'button';
                             });
 
-                            replaceGeocodeAddress();
 
-                            area.addEventListener('input', replaceGeocodeAddress.debounce(2000));
-                        }
+                        });
+
+                        replaceGeocodeAddress();
+
+                        area.addEventListener('input', replaceGeocodeAddress.debounce(2000));
+                    }
                 });
 
 
                 let repeat = 100;
-                setTimeout(function UMzLVLSAMe() {
+                setTimeout(function UMzLVLSAMe()
+                {
 
-                    if (repeat >= 1000) { return; }
+                    if(repeat >= 1000)
+                    { return; }
 
-                    if (typeof ymaps === 'object') {
+                    if(typeof ymaps === 'object')
+                    {
                         /** Инициируем карту */
                         ymaps.ready(init);
                     }
@@ -181,11 +189,11 @@ function geocodeAddress() {
                 }, 100);
 
 
-
-                modal.querySelectorAll('form').forEach(function (forms) {
+                modal.querySelectorAll('form').forEach(function(forms)
+                {
 
                     /*/!* событие отправки формы *!/*/
-                    forms.addEventListener('submit', function (event)
+                    forms.addEventListener('submit', function(event)
                     {
                         event.preventDefault();
                         geoModal.hide();
@@ -195,14 +203,14 @@ function geocodeAddress() {
             });
 
 
-
-            if ($html)
+            if($html)
             {
                 $html = request.responseText;
             }
 
 
-        } else {
+        } else
+        {
             /* Закрываем модальное окно */
             //let myModalEl = document.querySelector('#modal')
             //let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
@@ -217,13 +225,10 @@ function geocodeAddress() {
 }
 
 
+function replaceGeocodeAddress()
+{
 
-
-
-
-function replaceGeocodeAddress() {
-
-    if(typeof this.value == 'undefined'  ||  this.value.length < addressLength)
+    if(typeof this.value == 'undefined' || this.value.length < addressLength)
     {
         return;
     }
@@ -232,7 +237,7 @@ function replaceGeocodeAddress() {
 
     let address = this.value;
     address = address.replace('/', '-');
-    let url = '/geocode/'+address;
+    let url = '/geocode/' + address;
 
 
     /* Указываем метод соединения GET и путь к файлу на сервере */
@@ -243,14 +248,15 @@ function replaceGeocodeAddress() {
 
 
     /* Получаем ответ от сервера на запрос*/
-    request.addEventListener("readystatechange", function (evemnt) {
+    request.addEventListener("readystatechange", function(evemnt)
+    {
         /* request.readyState - возвращает текущее состояние объекта XHR(XMLHttpRequest) */
-        if (request.readyState === 4 && request.status === 200)
+        if(request.readyState === 4 && request.status === 200)
         {
 
             let modal = document.getElementById('modal_address');
 
-            if (!modal)
+            if(!modal)
             {
                 modal = document.getElementById('modal');
             }
@@ -267,59 +273,63 @@ function replaceGeocodeAddress() {
             //     new NiceSelect(item, {searchable: true});
             // });
 
-                modal.querySelectorAll('[data-address]').forEach(function (area)
+            modal.querySelectorAll('[data-address]').forEach(function(area)
+            {
+
+                if(typeof replaceGeocodeAddress.debounce === 'function')
                 {
 
-                    if (typeof replaceGeocodeAddress.debounce === 'function') {
-
-                        area.addEventListener('input', function (event)
+                    area.addEventListener('input', function(event)
+                    {
+                        /** Блокируем кнопку и показываем прелоад */
+                        modal.querySelectorAll('.spinner-border').forEach(function(indicator)
                         {
-                            /** Блокируем кнопку и показываем прелоад */
-                            modal.querySelectorAll('.spinner-border').forEach(function (indicator)
-                            {
-                                btn = indicator.closest('button');
+                            btn = indicator.closest('button');
 
-                                indicator.classList.remove('d-none');
-                                btn.disabled = true;
-                                btn.type = 'button';
-                            });
+                            indicator.classList.remove('d-none');
+                            btn.disabled = true;
+                            btn.type = 'button';
                         });
-
-                        area.addEventListener('input', replaceGeocodeAddress.debounce(2000));
-                    }
-
-                    /** Инициируем карту */
-                    ymaps.ready(init);
-
-                });
-
-
-                modal.querySelectorAll('form').forEach(function (forms) {
-
-                    /* событие отправки формы */
-                    forms.addEventListener('submit', function (event) {
-
-                        console.log();
-
-                        event.preventDefault();
-
-                        submitAddressForm(forms);
-
-                        //geoModal.hide();
-
-
-                        return false;
                     });
+
+                    area.addEventListener('input', replaceGeocodeAddress.debounce(2000));
+                }
+
+                /** Инициируем карту */
+                ymaps.ready(init);
+
+            });
+
+
+            modal.querySelectorAll('form').forEach(function(forms)
+            {
+
+                /* событие отправки формы */
+                forms.addEventListener('submit', function(event)
+                {
+
+                    console.log();
+
+                    event.preventDefault();
+
+                    submitAddressForm(forms);
+
+                    //geoModal.hide();
+
+
+                    return false;
                 });
+            });
 
 
-            if ($html)
+            if($html)
             {
                 $html = request.responseText;
             }
 
 
-        } else {
+        } else
+        {
             /* Закрываем модальное окно */
             //let myModalEl = document.querySelector('#modal')
             //let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
@@ -335,8 +345,8 @@ function replaceGeocodeAddress() {
 }
 
 
-
-function init() {
+function init()
+{
 
     let geocode = document.getElementById('user_address_form_desc');
     let latitude = document.getElementById('user_address_form_latitude');
@@ -348,7 +358,7 @@ function init() {
         zoom: geocode.value ? 17 : 6
     });
 
-    if (geocode.value)
+    if(geocode.value)
     {
         /** Метка на карте */
         myMap.geoObjects.add(new ymaps.Placemark([latitude.value, longitude.value], {
@@ -363,15 +373,16 @@ function init() {
 }
 
 
-
-async function submitAddressForm(forms) {
+async function submitAddressForm(forms)
+{
 
     const data = new FormData(forms);
 
     // /* показываем индикатор */
     let indicator = forms.querySelector('.spinner-border');
 
-    if (indicator) {
+    if(indicator)
+    {
         btn = indicator.closest('button');
 
         indicator.classList.remove('d-none');
@@ -392,13 +403,15 @@ async function submitAddressForm(forms) {
         body: data // body data type must match "Content-Type" header
     })
 
-        .then((response) => {
+        .then((response) =>
+        {
 
             closeProgress();
             btn.type = 'submit';
 
             const contentType = response.headers.get('content-type');
-            if (!contentType || !contentType.includes('application/json')) {
+            if(!contentType || !contentType.includes('application/json'))
+            {
 
                 $errorFormHandler = '{ "type":"danger" , ' +
                     '"header":"Ошибка"  , ' +
@@ -415,7 +428,8 @@ async function submitAddressForm(forms) {
             //let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
             geoModal.hide();
 
-            if (response.status === 302) {
+            if(response.status === 302)
+            {
                 window.location.href = '/refresh';
                 return;
             }
@@ -423,15 +437,18 @@ async function submitAddressForm(forms) {
             return response.json();
         })
 
-        .then((data) => {
+        .then((data) =>
+        {
 
 
-            if (data === undefined) {
+            if(data === undefined)
+            {
 
                 return false;
             }
 
-            if (data.status === 200 && data.redirect !== undefined) {
+            if(data.status === 200 && data.redirect !== undefined)
+            {
                 window.location.href = data.redirect;
 
                 return false;
@@ -439,7 +456,7 @@ async function submitAddressForm(forms) {
 
             createToast(data);
 
-            if (data.status !== 200)
+            if(data.status !== 200)
             {
                 return;
             }
@@ -458,36 +475,39 @@ async function submitAddressForm(forms) {
 }
 
 
-function changeAddress(forms) {
+function changeAddress(forms)
+{
 
     // user_address_form
 
-    if (forms !== false && forms.name === 'user_address_form')
+    if(forms !== false && forms.name === 'user_address_form')
     {
         /** Меняем кнопку submit */
         let btn = forms.querySelector('button[type="submit"]');
 
         var inputs = forms.elements;
 
-        for (i = 0; i < inputs.length; i++) {
+        for(i = 0; i < inputs.length; i++)
+        {
 
             /** Заполняем описание */
-            if (inputs[i].id === 'user_address_form_desc') {
+            if(inputs[i].id === 'user_address_form_desc')
+            {
 
-                document.querySelectorAll('[data-address]').forEach(function (area)
+                document.querySelectorAll('[data-address]').forEach(function(area)
                 {
                     area.value = inputs[i].value;
                 });
             }
 
 
-
             /** Заполянем аддрес */
-            if (inputs[i].id === 'user_address_form_address') {
+            if(inputs[i].id === 'user_address_form_address')
+            {
 
                 let dataGeocode = document.querySelector('[data-geocode]');
 
-                if (dataGeocode)
+                if(dataGeocode)
                 {
                     dataGeocode.value = inputs[i].value;
                 }
@@ -495,23 +515,25 @@ function changeAddress(forms) {
             }
 
             /** Заполянем Широту */
-            if (inputs[i].id === 'user_address_form_latitude') {
+            if(inputs[i].id === 'user_address_form_latitude')
+            {
 
                 let dataLatitude = document.querySelector('[data-latitude]');
 
-                if (dataLatitude)
+                if(dataLatitude)
                 {
                     dataLatitude.value = inputs[i].value;
                 }
             }
 
             /** Заполянем Долготу */
-            if (inputs[i].id === 'user_address_form_longitude') {
+            if(inputs[i].id === 'user_address_form_longitude')
+            {
 
 
                 let dataLongitude = document.querySelector('[data-longitude]');
 
-                if (dataLongitude)
+                if(dataLongitude)
                 {
                     dataLongitude.value = inputs[i].value;
                 }
@@ -520,7 +542,7 @@ function changeAddress(forms) {
         }
 
 
-        delete(forms);
+        delete (forms);
 
         //return false;
 

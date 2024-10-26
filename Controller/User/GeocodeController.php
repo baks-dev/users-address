@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,11 +31,10 @@ use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Users\Address\Api\YandexMarketAddressRequest;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
-use BaksDev\Users\Address\Repository\AddressByGeocode\AddressByGeocodeInterface;
-use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
 use BaksDev\Users\Address\Form\UserAddress\UserAddressDTO;
 use BaksDev\Users\Address\Form\UserAddress\UserAddressForm;
-use Doctrine\ORM\EntityManagerInterface;
+use BaksDev\Users\Address\Repository\AddressByGeocode\AddressByGeocodeInterface;
+use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,14 +46,13 @@ final class GeocodeController extends AbstractController
 {
     #[Route('/geocode/{address}', name: 'user.geocode', methods: ['GET', 'POST'])]
     public function index(
+        Request $request,
         YandexMarketAddressRequest $geocodeAddress,
         AddressByGeocodeInterface $addressByGeocode,
-        Request $request,
-        //EntityManagerInterface $entityManager,
-        //UsersProfileAddressHandler $addressHandler,
         MessageDispatchInterface $messageDispatch,
         ?string $address = null,
-    ): Response {
+    ): Response
+    {
 
         $UsersProfileAddressDTO = new UserAddressDTO();
         $UsersProfileAddressDTO->setDesc($address);
@@ -63,7 +61,12 @@ final class GeocodeController extends AbstractController
 
         if(!empty($address))
         {
-            /** Если строка содержит геоданные - делаем проверку по базе */
+            $address = strip_tags($address);
+            $address = str_replace(['@', '#', '$', '%', '^', '!', '?', 'http://', 'https://'], '', $address);
+
+            /**
+             * Если строка содержит геоданные - делаем проверку по базе
+             */
             if(preg_match('/\d+\.\d+(,\s?)\d+\.\d+/', $address))
             {
                 $geoData = explode(',', $address);
@@ -75,12 +78,18 @@ final class GeocodeController extends AbstractController
                 }
             }
 
-            if(null === $GeocodeAddressDTO->getAddress())
+            /**
+             * Если по базе геолокация не найдена - пробуем определить по API
+             */
+            if(empty($GeocodeAddressDTO->getAddress()))
             {
                 $GeocodeAddressDTO = $geocodeAddress->getAddress($address);
             }
 
-            if(null === $GeocodeAddressDTO->getAddress())
+            /**
+             * Если геолокация по адресу не найдена - ошибку JSON
+             */
+            if(empty($GeocodeAddressDTO) || empty($GeocodeAddressDTO->getAddress()))
             {
                 return new JsonResponse(
                     [
@@ -93,31 +102,30 @@ final class GeocodeController extends AbstractController
                 );
             }
 
-            /** Присваиваем геоданные пользовательской форме */
+            /**
+             * Если геолокация найдена - присваиваем геоданные пользовательской форме
+             */
             $UsersProfileAddressDTO->setLatitude($GeocodeAddressDTO->getLatitude());
             $UsersProfileAddressDTO->setLongitude($GeocodeAddressDTO->getLongitude());
             $UsersProfileAddressDTO->setDesc($GeocodeAddressDTO->getAddress());
             $UsersProfileAddressDTO->setHouse(($GeocodeAddressDTO->getHouse() !== null));
 
+            // Сохраняем в базу найденные геоданные для последующего выбора
             $messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');
         }
 
+        $form = $this
+            ->createForm(UserAddressForm::class, $UsersProfileAddressDTO, [
+                'action' => $this->generateUrl(
+                    'users-address:user.geocode',
+                    ['address' => $UsersProfileAddressDTO->getLatitude().','.$UsersProfileAddressDTO->getLongitude()]
+                ),
+            ])
+            ->handleRequest($request);
 
-        $form = $this->createForm(UserAddressForm::class, $UsersProfileAddressDTO, [
-            'action' => $this->generateUrl(
-                'users-address:user.geocode',
-                ['address' => $UsersProfileAddressDTO->getLatitude().','.$UsersProfileAddressDTO->getLongitude()]
-            ),
-        ]);
-
-        $form->handleRequest($request);
-
-
-        //        if($form->isSubmitted() && !$form->isValid())
-        //        {
-        //            dd($form->getErrors());
-        //        }
-
+        /**
+         * Если была отправлена форма и найдены геоданные - возвращаем JSON с адресом
+         */
         if($form->isSubmitted() && $form->isValid() && $form->has('geocode'))
         {
             return new JsonResponse(
@@ -130,10 +138,6 @@ final class GeocodeController extends AbstractController
             );
         }
 
-        return $this->render([
-            'form' => $form->createView(),
-        ]);
+        return $this->render(['form' => $form->createView()]);
     }
-
-
 }

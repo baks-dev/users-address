@@ -1,17 +1,17 @@
 <?php
 /*
  *  Copyright 2024.  Baks.dev <admin@baks.dev>
- *
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -31,7 +31,6 @@ use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\Entity\UsersProfileAddressInterface;
 use BaksDev\Users\Address\Type\Geocode\GeocodeAddressUid;
-use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use Symfony\Component\Validator\Constraints as Assert;
 
 /** @see UsersProfileAddress */
@@ -43,8 +42,8 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
 
     /** Идентификатор профиля пользователя */
     //#[Assert\NotBlank]
-//    #[Assert\Uuid]
-//    private ?UserProfileUid $profile = null;
+    //    #[Assert\Uuid]
+    //    private ?UserProfileUid $profile = null;
 
     /** Широта */
     #[Assert\NotBlank]
@@ -77,16 +76,16 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
         $this->address = $address instanceof GeocodeAddress ? $address->getId() : $address;
     }
 
-//    /** Идентификатор профиля пользователя */
-//    public function getProfile(): UserProfileUid
-//    {
-//        return $this->profile;
-//    }
-//
-//    public function setProfile(UserProfileUid $profile): void
-//    {
-//        $this->profile = $profile;
-//    }
+    //    /** Идентификатор профиля пользователя */
+    //    public function getProfile(): UserProfileUid
+    //    {
+    //        return $this->profile;
+    //    }
+    //
+    //    public function setProfile(UserProfileUid $profile): void
+    //    {
+    //        $this->profile = $profile;
+    //    }
 
     /** Долгота*/
     public function getLongitude(): ?GpsLongitude

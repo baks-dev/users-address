@@ -1,17 +1,17 @@
 <?php
 /*
- *  Copyright 2023.  Baks.dev <admin@baks.dev>
- *
+ *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
  *  in the Software without restriction, including without limitation the rights
  *  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  *  copies of the Software, and to permit persons to whom the Software is furnished
  *  to do so, subject to the following conditions:
- *
+ *  
  *  The above copyright notice and this permission notice shall be included in all
  *  copies or substantial portions of the Software.
- *
+ *  
  *  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  *  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  *  FITNESS FOR A PARTICULAR PURPOSE AND NON INFRINGEMENT. IN NO EVENT SHALL THE
@@ -56,7 +56,7 @@ final class GeocodeNavigator
 
     public function addGeocode(GpsLatitude $latitude, GpsLongitude $longitude, mixed $attr = null): self
     {
-        if (!$this->latitude || !$this->longitude)
+        if(!$this->latitude || !$this->longitude)
         {
             throw new InvalidArgumentException('Необходимо указать начало маршрута withStart');
         }
@@ -77,7 +77,7 @@ final class GeocodeNavigator
             ->fromLatitude($this->latitude->getFloat())
             ->fromLongitude($this->longitude->getFloat());
 
-        for ($i = 1; $i < $counter; $i++)
+        for($i = 1; $i < $counter; $i++)
         {
             $j = $i - 1;
             $temp = $locations[$i];
@@ -87,28 +87,29 @@ final class GeocodeNavigator
                 ->toLongitude($locations[$i]['longitude'])
                 ->getDistance();
 
-            while (
+            while(
                 $j >= 0 &&
                 $geocodeDistance
                     ->toLatitude($locations[$j]['latitude'])
                     ->toLongitude($locations[$j]['longitude'])
                     ->getDistance() > $distance
-            ) {
+            )
+            {
                 $locations[$j + 1] = $locations[$j];
                 $j--;
             }
 
             $locations[$j + 1] = $temp;
 
-//            $distance = $this->distance($locations[$i]['latitude'], $locations[$i]['longitude'], $start['latitude'], $start['lon']);
-//
-//            while ($j >= 0 && $this->distance($locations[$j]['latitude'], $locations[$j]['longitude'], $start['latitude'], $start['longitude']) > $distance)
-//            {
-//                $locations[$j + 1] = $locations[$j];
-//                $j--;
-//            }
-//
-//            $locations[$j + 1] = $temp;
+            //            $distance = $this->distance($locations[$i]['latitude'], $locations[$i]['longitude'], $start['latitude'], $start['lon']);
+            //
+            //            while ($j >= 0 && $this->distance($locations[$j]['latitude'], $locations[$j]['longitude'], $start['latitude'], $start['longitude']) > $distance)
+            //            {
+            //                $locations[$j + 1] = $locations[$j];
+            //                $j--;
+            //            }
+            //
+            //            $locations[$j + 1] = $temp;
         }
 
         $this->locations = $locations;
@@ -126,7 +127,7 @@ final class GeocodeNavigator
         $all = 0;
 
         /* Рассчитываем дистанцию между точками */
-        foreach ($this->locations as $key => $location)
+        foreach($this->locations as $key => $location)
         {
             $distance = $geocodeDistance
                 ->toLatitude($location['latitude'])
