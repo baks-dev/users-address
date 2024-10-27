@@ -72,7 +72,7 @@ final class YandexMarketAddressRequest
             return $content;
         });
 
-        if(false === $content || false === json_validate($content, 512, JSON_THROW_ON_ERROR))
+        if(false === $content || false === json_validate($content))
         {
             return false;
         }
