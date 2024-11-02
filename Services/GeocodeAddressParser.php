@@ -33,6 +33,7 @@ use BaksDev\Users\Address\Api\YandexMarketAddressRequest;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\Repository\AddressByGeocode\AddressByGeocodeInterface;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
@@ -49,16 +50,19 @@ final class GeocodeAddressParser
     private HttpClientInterface $httpClient;
 
     //private AddressByGeocodeInterface $addressByGeocode;
+    private LoggerInterface $logger;
 
     public function __construct(
+        #[Autowire(env: 'MAPS_YANDEX_API')] private readonly string $apikey,
         private readonly AddressByGeocodeInterface $addressByGeocode,
         private readonly YandexMarketAddressRequest $addressRequest,
         private readonly MessageDispatchInterface $messageDispatch,
         private readonly TranslatorInterface $translator,
-        #[Autowire(env: 'MAPS_YANDEX_API')] private readonly string $apikey
+        LoggerInterface $usersAddressLogger
     )
     {
 
+        $this->logger = $usersAddressLogger;
 
         //$this->handler = $handler;
         //$this->translator = $translator;
@@ -150,11 +154,11 @@ final class GeocodeAddressParser
 
 
         //$this->addressByGeocode = $addressByGeocode;
+
     }
 
     public function getGeocode(string $address): bool|GeocodeAddressDTO
     {
-
 
         $GeocodeAddressDTO = new GeocodeAddressDTO();
 
@@ -179,71 +183,20 @@ final class GeocodeAddressParser
             }
         }
 
-
-        //        $fileName = md5($address);
-        //
-        //        $cache = new FilesystemAdapter('users-address');
-
-        //        if(Kernel::isTestEnvironment())
-        //        {
-        //            $cache->delete($fileName);
-        //        }
-
-        //        /* Кешируем результат GET */
-        //        $content = $cache->get($fileName, function (ItemInterface $item) use ($address) {
-        //
-        //            $item->expiresAfter(86400 * 30);
-        //
-        //            $lang = mb_strtolower($this->translator->getLocale()).'_'.mb_strtoupper($this->translator->getLocale());
-        //
-        //            /** Получаем конфиг  */
-        //            $config = $this->httpClient->request(
-        //                'GET',
-        //                '/v3/',
-        //                ['query' => ['apikey' => $this->apikey, 'lang' => $lang]]
-        //            );
-        //            $config = $config->getContent();
-        //
-        //            /** Получаем токен запроса */
-        //            preg_match('/"token":"([^"]+)"/', $config, $matches);
-        //            $tokenRequest = $matches[1];
-        //
-        //            $data = [
-        //                'text' => $address,
-        //                'token' => $tokenRequest,
-        //                'apikey' => $this->apikey,
-        //                'format' => 'json',
-        //                'rspn' => 0,
-        //                'lang' => $lang,
-        //                'type' => 'geo',
-        //                'properties' => 'addressdetails',
-        //                'origin' => 'jsapi2Geocoder',
-        //            ];
-        //
-        //            /** Получаем геоданные */
-        //            $result = $this->httpClient->request('GET', '/services/search/v2/', ['query' => $data]);
-        //
-        //            return $result->getContent();
-        //        });
-
-
-        //        $result = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
-        //
-        //
-        //
-        //        $features = current($result->features);
-        //        $GeocoderMetaData = $features->properties->GeocoderMetaData;
-        //        $arrCoordinates = $features->geometry->coordinates;
-        //        $AddressDetails = $GeocoderMetaData->AddressDetails;
-        //
-        //
-        //        dump($GeocoderMetaData);
-        //        dump($arrCoordinates);
-        //        dump($AddressDetails);
-
-
         /** Если по базе не найдено - пробуем определить по Яндекс-карте */
         $GeocodeAddressDTO = $this->addressRequest->getAddress($address);
+
+        if(false === $GeocodeAddressDTO)
+        {
+            $this->logger->critical('users-address: Ошибка при получении геолокации адреса',
+                [
+                    __FILE__.':'.__LINE__,
+                    $address
+                ]
+            );
+
+            return false;
+        }
 
         /** Пробуем повторно определить адрес по геолокации в локальном хранилище */
         $GeocodeAddress = $this->addressByGeocode->find(
@@ -259,6 +212,7 @@ final class GeocodeAddressParser
 
         /** Если адрес по геолокации не найден - сохраняем */
         $this->messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');
+
         return $GeocodeAddressDTO;
 
 

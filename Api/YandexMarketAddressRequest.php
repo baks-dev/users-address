@@ -66,6 +66,7 @@ final class YandexMarketAddressRequest
             }
             catch(Exception)
             {
+                $item->expiresAfter(5);
                 return false;
             }
 
