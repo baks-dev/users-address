@@ -31,9 +31,9 @@ use Symfony\Component\Uid\AbstractUid;
 
 final class GeocodeAddressUid extends Uid
 {
-    public const TEST = '0188a9a5-50da-7837-80ab-4996fbc63f1f';
+    public const string TEST = '0188a9a5-50da-7837-80ab-4996fbc63f1f';
 
-    public const TYPE = 'geocode_address';
+    public const string TYPE = 'geocode_address';
 
     private mixed $attr;
 

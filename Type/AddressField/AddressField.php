@@ -25,7 +25,7 @@ namespace BaksDev\Users\Address\Type\AddressField;
 
 final class AddressField
 {
-    public const TYPE = 'address_field';
+    public const string TYPE = 'address_field';
 
     private string $value;
 

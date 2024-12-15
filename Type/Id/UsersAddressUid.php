@@ -30,8 +30,8 @@ use BaksDev\Core\Type\UidType\Uid;
 
 final class UsersAddressUid extends Uid
 {
-    public const TEST = '0188a9a5-bded-729a-8692-fe77837df3d2';
+    public const string TEST = '0188a9a5-bded-729a-8692-fe77837df3d2';
 
-    public const TYPE = 'users_address';
+    public const string TYPE = 'users_address';
 
 }
