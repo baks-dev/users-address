@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -29,20 +29,16 @@ use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressHandler;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Component\Messenger\Attribute\AsMessageHandler;
 
 #[AsMessageHandler(priority: 0)]
 final readonly class CreateGeocodeAddress
 {
-    private LoggerInterface $logger;
-
     public function __construct(
+        #[Target('usersAddressLogger')] private LoggerInterface $logger,
         private GeocodeAddressHandler $geocodeAddressHandler,
-        LoggerInterface $usersAddressLogger
-    )
-    {
-        $this->logger = $usersAddressLogger;
-    }
+    ) {}
 
     public function __invoke(GeocodeAddressDTO $GeocodeAddress): void
     {
