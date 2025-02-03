@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -114,13 +114,15 @@ final class GeocodeController extends AbstractController
             $messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');
         }
 
+
+        $geo = sprintf('%s,%s', $UsersProfileAddressDTO->getLatitude(), $UsersProfileAddressDTO->getLongitude());
+
         $form = $this
-            ->createForm(UserAddressForm::class, $UsersProfileAddressDTO, [
-                'action' => $this->generateUrl(
-                    'users-address:user.geocode',
-                    ['address' => $UsersProfileAddressDTO->getLatitude().','.$UsersProfileAddressDTO->getLongitude()]
-                ),
-            ])
+            ->createForm(
+                type: UserAddressForm::class,
+                data: $UsersProfileAddressDTO,
+                options: ['action' => $this->generateUrl('users-address:user.geocode', ['address' => $geo])]
+            )
             ->handleRequest($request);
 
         /**

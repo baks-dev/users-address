@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -24,7 +24,8 @@
 namespace BaksDev\Users\Address\Controller\Admin;
 
 use BaksDev\Core\Controller\AbstractController;
-use BaksDev\Core\Form\Search;
+use BaksDev\Core\Form\Search\SearchDTO;
+use BaksDev\Core\Form\Search\SearchForm;
 use BaksDev\Core\Listeners\Event\Security\RoleSecurity;
 use BaksDev\Users\Profile\TypeProfile\Repository\AllProfileType\AllProfileTypeInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -50,9 +51,15 @@ final class IndexController extends AbstractController
         dd('/admin/users/address');
 
         // Поиск
-        $search = new Search\SearchDTO();
-        $searchForm = $this->createForm(Search\SearchForm::class, $search);
-        $searchForm->handleRequest($request);
+        $search = new SearchDTO();
+        $searchForm = $this
+            ->createForm(
+                type: SearchForm::class,
+                data: $search,
+                options: ['action' => $this->generateUrl('users-address:admin.index')]
+
+            )
+            ->handleRequest($request);
 
         // Получаем список
         $query = $allProfileType->find($search);
