@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -31,14 +31,9 @@ use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 
 
-final class AddressByGeocodeRepository implements AddressByGeocodeInterface
+final readonly class AddressByGeocodeRepository implements AddressByGeocodeInterface
 {
-    private ORMQueryBuilder $ORMQueryBuilder;
-
-    public function __construct(ORMQueryBuilder $ORMQueryBuilder)
-    {
-        $this->ORMQueryBuilder = $ORMQueryBuilder;
-    }
+    public function __construct(private ORMQueryBuilder $ORMQueryBuilder) {}
 
     /**
      * Метод возвращает объект GeocodeAddress по геолокации
@@ -47,7 +42,6 @@ final class AddressByGeocodeRepository implements AddressByGeocodeInterface
     {
         $orm = $this->ORMQueryBuilder->createQueryBuilder(self::class);
 
-        // $select = sprintf('new %s(field.id)', Class::class);
         $orm
             ->select('geocode')
             ->from(GeocodeAddress::class, 'geocode');
@@ -55,19 +49,21 @@ final class AddressByGeocodeRepository implements AddressByGeocodeInterface
         $orm
             ->where('geocode.latitude = :latitude')
             ->setParameter(
-                'latitude',
-                $latitude,
-                GpsLatitude::TYPE
+                key: 'latitude',
+                value: $latitude,
+                type: GpsLatitude::TYPE
             );
 
         $orm
             ->andWhere('geocode.longitude = :longitude')
             ->setParameter(
-                'longitude',
-                $longitude,
-                GpsLongitude::TYPE
+                key: 'longitude',
+                value: $longitude,
+                type: GpsLongitude::TYPE
             );
 
-        return $orm->enableCache('users-address')->getOneOrNullResult();
+        return $orm
+            ->enableCache('users-address')
+            ->getOneOrNullResult();
     }
 }

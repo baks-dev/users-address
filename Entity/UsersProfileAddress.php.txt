@@ -37,8 +37,6 @@ use InvalidArgumentException;
 #[ORM\Table(name: 'users_address')]
 class UsersProfileAddress extends EntityState
 {
-    public const TABLE = 'users_profile_address';
-
     /**
      * Связь на адрес
      */
