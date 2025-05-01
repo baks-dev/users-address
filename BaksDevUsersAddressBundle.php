@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -32,28 +32,5 @@ class BaksDevUsersAddressBundle extends AbstractBundle
     public const string NAMESPACE = __NAMESPACE__.'\\';
 
     public const string PATH = __DIR__.DIRECTORY_SEPARATOR;
-
-    //    public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
-    //    {
-    //        $services = $container->services()
-    //            ->defaults()
-    //            ->autowire()
-    //            ->autoconfigure()
-    //            ->public()
-    //        ;
-    //
-    //        $services->load(self::NAMESPACE, self::PATH)
-    //            ->exclude([
-    //                self::PATH.'{Entity,Resources,Type}',
-    //                self::PATH.'**/*Message.php',
-    //                self::PATH.'**/*DTO.php',
-    //            ]);
-    //
-    //        $services->alias(
-    //            GeocodeAddressInterface::class.' $geocodeAddress',
-    //            GeocodeAddressRepository::class
-    //        );
-    //
-    //    }
 
 }
