@@ -47,6 +47,23 @@ final class GeocodeControllerTest extends WebTestCase
 
             $client->request('GET', sprintf(self::URL, $this->geocode));
 
+            $statusCode = $client->getResponse()->getStatusCode();
+
+            if($statusCode === 400)
+            {
+                $content = $client->getResponse()->getContent();
+                $content = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
+
+                self::assertEquals('danger', $content->type);
+                self::assertEquals('Адрес местоположения', $content->header);
+                self::assertEquals('Невозможно определить адрес местоположения', $content->message);
+                self::assertEquals(400, $content->status);
+
+                echo PHP_EOL.'Невозможно определить геолокацию. Возможно не указан токен авторизации MAPS_YANDEX_API'.PHP_EOL;
+
+                return;
+            }
+
             self::assertResponseIsSuccessful();
         }
 
@@ -67,6 +84,24 @@ final class GeocodeControllerTest extends WebTestCase
             $client->loginUser($usr, 'user');
             $client->request('GET', sprintf(self::URL, $this->geocode));
 
+
+            $statusCode = $client->getResponse()->getStatusCode();
+
+            if($statusCode === 400)
+            {
+                $content = $client->getResponse()->getContent();
+                $content = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
+
+                self::assertEquals('danger', $content->type);
+                self::assertEquals('Адрес местоположения', $content->header);
+                self::assertEquals('Невозможно определить адрес местоположения', $content->message);
+                self::assertEquals(400, $content->status);
+
+                echo PHP_EOL.'Невозможно определить геолокацию. Возможно не указан токен авторизации MAPS_YANDEX_API'.PHP_EOL;
+
+                return;
+            }
+
             self::assertResponseIsSuccessful();
         }
 
@@ -85,6 +120,23 @@ final class GeocodeControllerTest extends WebTestCase
             $client->setServerParameter('HTTP_USER_AGENT', $device);
             $client->loginUser($usr, 'user');
             $client->request('GET', sprintf(self::URL, $this->geocode));
+
+            $statusCode = $client->getResponse()->getStatusCode();
+
+            if($statusCode === 400)
+            {
+                $content = $client->getResponse()->getContent();
+                $content = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
+
+                self::assertEquals('danger', $content->type);
+                self::assertEquals('Адрес местоположения', $content->header);
+                self::assertEquals('Невозможно определить адрес местоположения', $content->message);
+                self::assertEquals(400, $content->status);
+
+                echo PHP_EOL.'Невозможно определить геолокацию. Возможно не указан токен авторизации MAPS_YANDEX_API'.PHP_EOL;
+
+                return;
+            }
 
             self::assertResponseIsSuccessful();
         }

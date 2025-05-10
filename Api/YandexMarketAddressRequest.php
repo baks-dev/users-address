@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -30,12 +30,17 @@ use Exception;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Contracts\Cache\ItemInterface;
 
-final class YandexMarketAddressRequest
+final readonly class YandexMarketAddressRequest
 {
-    public function __construct(private readonly YandexMarketTokenRequest $tokenRequest) {}
+    public function __construct(private YandexMarketTokenRequest $tokenRequest) {}
 
     public function getAddress(string $address): GeocodeAddressDTO|false
     {
+        if(empty($this->tokenRequest->getToken()))
+        {
+            return false;
+        }
+
         $cache = new FilesystemAdapter('users-address');
         $fileName = md5($address);
 
