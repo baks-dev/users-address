@@ -1,9 +1,11 @@
 {% trans_default_domain 'user.address' %}
 
-<div class="modal-dialog modal-dialog-centered" style="max-width: 1200px;">
+<div class="modal-dialog modal-dialog-centered justify-content-center">
 
-    {{ form_start(form) }}
-    <div class="modal-content p-3 border-bottom border-5 border-primary">
+    <div class="modal-content p-3 border-bottom border-5 border-primary" style="max-width: 1200px;">
+
+        {{ form_start(form) }}
+
         <div class="modal-header">
 
             <h5 class="modal-title">
@@ -82,7 +84,6 @@
                     {{ 'btn.cancel'|trans({}, 'core.btn') }}
                 </button>
 
-
                 {# Сохранить #}
                 {{ form_widget(form.geocode, { label: '
                     <span>'~ 'btn.save'|trans({}, 'core.btn') ~'</span>
@@ -91,10 +92,8 @@
             </div>
 
         </div>
+
+        {{ form_end(form) }}
     </div>
 
-    {{ form_end(form) }}
-
-
 </div>
-
