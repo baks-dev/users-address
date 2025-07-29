@@ -1,5 +1,5 @@
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -31,49 +31,51 @@ function initAdddress()
 {
     setTimeout(function initAdddress()
     {
-
         dataUserAddress = document.querySelectorAll('[data-address]');
 
         if(dataUserAddress)
         {
-
             dataUserAddress.forEach(function(area)
             {
+                if(area.tagName === "INPUT")
+                {
+
+                    /** Присваиваем адрес по выбору из элемента */
+                    area.addEventListener("change", (event) =>
+                    {
+                        document.querySelector("[data-latitude]").value = area.dataset.lati;
+                        document.querySelector("[data-longitude]").value = area.dataset.longi;
+                    });
+
+                    /** Присваиваем адрес после загрузки элемента */
+                    if(area.checked)
+                    {
+                        document.querySelector("[data-latitude]").value = area.dataset.lati;
+                        document.querySelector("[data-longitude]").value = area.dataset.longi;
+                    }
+                }
+
                 if(area.tagName === 'SELECT')
                 {
                     /** Присваиваем адрес по выбору из списка */
                     area.addEventListener("change", (event) =>
                     {
-
                         document.querySelector('[data-latitude]').value = area.options[area.selectedIndex].dataset.lati;
                         document.querySelector('[data-longitude]').value = area.options[area.selectedIndex].dataset.longi;
-
-                        //document.querySelector('[data-geocode]').value = area.options[area.selectedIndex].dataset.value;
                     });
-                } else
+                }
+
+                if(area.tagName === "TEXTAREA")
                 {
                     /** Присваиваем адрес по карте */
                     area.addEventListener('focus', geocodeAddress);
                 }
-
-
-                //setTimeout(function initGeocodeAddress() {
-
-                //if (typeof geocodeAddress.debounce === 'function') {
-
-                //area.addEventListener('input', geocodeAddress.debounce(2000));
-                //area.addEventListener('blur', geocodeAddress);
-
-
-                //setTimeout(initGeocodeAddress, 100);
-
-                //}, 100);
-
             });
 
 
             return;
         }
+
         setTimeout(initAdddress, 100);
 
     }, 100);
@@ -347,10 +349,14 @@ function replaceGeocodeAddress()
 
 function init()
 {
-
     let geocode = document.getElementById('user_address_form_desc');
     let latitude = document.getElementById('user_address_form_latitude');
     let longitude = document.getElementById('user_address_form_longitude');
+
+    if(latitude === null || longitude === null)
+    {
+        return;
+    }
 
     myMap = new ymaps.Map("map", {
         center: [latitude.value, longitude.value],

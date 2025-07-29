@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,8 @@ declare(strict_types=1);
 
 namespace BaksDev\Users\Address\Services;
 
+use BaksDev\Core\Type\Gps\GpsLatitude;
+use BaksDev\Core\Type\Gps\GpsLongitude;
 use InvalidArgumentException;
 
 final class GeocodeDistance
@@ -40,27 +42,47 @@ final class GeocodeDistance
     private float $toLongitude;
 
     /** Начальная точка отсчета  */
-    public function fromLatitude(float $code): self
+    public function fromLatitude(float|GpsLatitude $code): self
     {
+        if($code instanceof GpsLatitude)
+        {
+            $code = $code->getFloat();
+        }
+
         $this->fromLatitude = $code;
         return $this;
     }
 
-    public function fromLongitude(float $code): self
+    public function fromLongitude(float|GpsLongitude $code): self
     {
+        if($code instanceof GpsLongitude)
+        {
+            $code = $code->getFloat();
+        }
+
         $this->fromLongitude = $code;
         return $this;
     }
 
     /** Конечная точка отсчета */
-    public function toLatitude(float $code): self
+    public function toLatitude(float|GpsLatitude $code): self
     {
+        if($code instanceof GpsLatitude)
+        {
+            $code = $code->getFloat();
+        }
+
         $this->toLatitude = $code;
         return $this;
     }
 
-    public function toLongitude(float $code): self
+    public function toLongitude(float|GpsLongitude $code): self
     {
+        if($code instanceof GpsLongitude)
+        {
+            $code = $code->getFloat();
+        }
+
         $this->toLongitude = $code;
         return $this;
     }
