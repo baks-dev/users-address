@@ -31,44 +31,53 @@ function initAdddress()
 {
     setTimeout(function initAdddress()
     {
-        dataUserAddress = document.querySelectorAll('[data-address]');
+        dataUserAddress = document.querySelectorAll("[data-address]");
 
         if(dataUserAddress)
         {
             dataUserAddress.forEach(function(area)
             {
+
                 if(area.tagName === "INPUT")
                 {
-
-                    /** Присваиваем адрес по выбору из элемента */
-                    area.addEventListener("change", (event) =>
+                    if(area.type === "text")
                     {
-                        document.querySelector("[data-latitude]").value = area.dataset.lati;
-                        document.querySelector("[data-longitude]").value = area.dataset.longi;
-                    });
+                        /** Присваиваем адрес по карте */
+                        area.addEventListener("focus", geocodeAddress);
+                    }
 
-                    /** Присваиваем адрес после загрузки элемента */
-                    if(area.checked)
+                    if(area.type === "radio")
                     {
-                        document.querySelector("[data-latitude]").value = area.dataset.lati;
-                        document.querySelector("[data-longitude]").value = area.dataset.longi;
+                        /** Присваиваем адрес по выбору из элемента */
+                        area.addEventListener("change", (event) =>
+                        {
+                            document.querySelector("[data-latitude]").value = area.dataset.lati;
+                            document.querySelector("[data-longitude]").value = area.dataset.longi;
+                        });
+
+                        /** Присваиваем адрес после загрузки элемента */
+                        if(area.checked)
+                        {
+                            document.querySelector("[data-latitude]").value = area.dataset.lati;
+                            document.querySelector("[data-longitude]").value = area.dataset.longi;
+                        }
                     }
                 }
 
-                if(area.tagName === 'SELECT')
+                if(area.tagName === "SELECT")
                 {
                     /** Присваиваем адрес по выбору из списка */
                     area.addEventListener("change", (event) =>
                     {
-                        document.querySelector('[data-latitude]').value = area.options[area.selectedIndex].dataset.lati;
-                        document.querySelector('[data-longitude]').value = area.options[area.selectedIndex].dataset.longi;
+                        document.querySelector("[data-latitude]").value = area.options[area.selectedIndex].dataset.lati;
+                        document.querySelector("[data-longitude]").value = area.options[area.selectedIndex].dataset.longi;
                     });
                 }
 
                 if(area.tagName === "TEXTAREA")
                 {
                     /** Присваиваем адрес по карте */
-                    area.addEventListener('focus', geocodeAddress);
+                    area.addEventListener("focus", geocodeAddress);
                 }
             });
 
@@ -94,14 +103,14 @@ function geocodeAddress()
     //let url = '/geocode/01882e34-acaa-7a3a-80e8-a8326cb34799';
 
     let address = this.value;
-    address = address.replace('/', '-')
-    let url = '/geocode/' + address;
+    address = address.replace("/", "-");
+    let url = "/geocode/" + address;
 
     /* Указываем метод соединения GET и путь к файлу на сервере */
-    request.open('GET', url);
+    request.open("GET", url);
     /* Указываем заголовки для сервера */
     //request.setRequestHeader('Content-Type', 'application/x-www-form-url');
-    request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
 
     /* Получаем ответ от сервера на запрос*/
@@ -111,18 +120,18 @@ function geocodeAddress()
         if(request.readyState === 4 && request.status === 200)
         {
 
-            let modal = document.getElementById('modal_address');
+            let modal = document.getElementById("modal_address");
 
             if(!modal)
             {
-                modal = document.getElementById('modal');
+                modal = document.getElementById("modal");
             }
 
             modal.innerHTML = request.responseText;
 
             geoModal = new bootstrap.Modal(modal, {
-                keyboard: false
-            })
+                keyboard : false,
+            });
 
 
             geoModal.show();
@@ -131,10 +140,10 @@ function geocodeAddress()
             //eventEmitter.dispatchEvent(new Event('complete'));
 
             /* Сбрасываем содержимое модального окна при закрытии */
-            modal.addEventListener('hidden.bs.modal', function(event)
+            modal.addEventListener("hidden.bs.modal", function(event)
             {
-                this.innerHTML = '';
-            })
+                this.innerHTML = "";
+            });
 
             // /* Если в модальном окне присутствует select2 */
             // modal.querySelectorAll('[data-select="select2"]').forEach(function (item) {
@@ -142,24 +151,24 @@ function geocodeAddress()
             // });
 
 
-            modal.addEventListener('shown.bs.modal', function(event)
+            modal.addEventListener("shown.bs.modal", function(event)
             {
 
-                modal.querySelectorAll('[data-address]').forEach(function(area)
+                modal.querySelectorAll("[data-address]").forEach(function(area)
                 {
-                    if(typeof replaceGeocodeAddress.debounce === 'function')
+                    if(typeof replaceGeocodeAddress.debounce === "function")
                     {
-                        area.addEventListener('input', function(event)
+                        area.addEventListener("input", function(event)
                         {
 
                             /** Блокируем кнопку и показываем прелоад */
-                            modal.querySelectorAll('.spinner-border').forEach(function(indicator)
+                            modal.querySelectorAll(".spinner-border").forEach(function(indicator)
                             {
-                                btn = indicator.closest('button');
+                                btn = indicator.closest("button");
 
-                                indicator.classList.remove('d-none');
+                                indicator.classList.remove("d-none");
                                 btn.disabled = true;
-                                btn.type = 'button';
+                                btn.type = "button";
                             });
 
 
@@ -167,7 +176,7 @@ function geocodeAddress()
 
                         replaceGeocodeAddress();
 
-                        area.addEventListener('input', replaceGeocodeAddress.debounce(2000));
+                        area.addEventListener("input", replaceGeocodeAddress.debounce(2000));
                     }
                 });
 
@@ -179,7 +188,7 @@ function geocodeAddress()
                     if(repeat >= 1000)
                     { return; }
 
-                    if(typeof ymaps === 'object')
+                    if(typeof ymaps === "object")
                     {
                         /** Инициируем карту */
                         ymaps.ready(init);
@@ -191,11 +200,11 @@ function geocodeAddress()
                 }, 100);
 
 
-                modal.querySelectorAll('form').forEach(function(forms)
+                modal.querySelectorAll("form").forEach(function(forms)
                 {
 
                     /*/!* событие отправки формы *!/*/
-                    forms.addEventListener('submit', function(event)
+                    forms.addEventListener("submit", function(event)
                     {
                         event.preventDefault();
                         geoModal.hide();
@@ -211,7 +220,8 @@ function geocodeAddress()
             }
 
 
-        } else
+        }
+        else
         {
             /* Закрываем модальное окно */
             //let myModalEl = document.querySelector('#modal')
@@ -230,7 +240,7 @@ function geocodeAddress()
 function replaceGeocodeAddress()
 {
 
-    if(typeof this.value == 'undefined' || this.value.length < addressLength)
+    if(typeof this.value == "undefined" || this.value.length < addressLength)
     {
         return;
     }
@@ -238,15 +248,15 @@ function replaceGeocodeAddress()
     const request = new XMLHttpRequest();
 
     let address = this.value;
-    address = address.replace('/', '-');
-    let url = '/geocode/' + address;
+    address = address.replace("/", "-");
+    let url = "/geocode/" + address;
 
 
     /* Указываем метод соединения GET и путь к файлу на сервере */
-    request.open('GET', url);
+    request.open("GET", url);
     /* Указываем заголовки для сервера */
     //request.setRequestHeader('Content-Type', 'application/x-www-form-url');
-    request.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+    request.setRequestHeader("X-Requested-With", "XMLHttpRequest");
 
 
     /* Получаем ответ от сервера на запрос*/
@@ -256,11 +266,11 @@ function replaceGeocodeAddress()
         if(request.readyState === 4 && request.status === 200)
         {
 
-            let modal = document.getElementById('modal_address');
+            let modal = document.getElementById("modal_address");
 
             if(!modal)
             {
-                modal = document.getElementById('modal');
+                modal = document.getElementById("modal");
             }
 
             modal.innerHTML = request.responseText;
@@ -275,26 +285,26 @@ function replaceGeocodeAddress()
             //     new NiceSelect(item, {searchable: true});
             // });
 
-            modal.querySelectorAll('[data-address]').forEach(function(area)
+            modal.querySelectorAll("[data-address]").forEach(function(area)
             {
 
-                if(typeof replaceGeocodeAddress.debounce === 'function')
+                if(typeof replaceGeocodeAddress.debounce === "function")
                 {
 
-                    area.addEventListener('input', function(event)
+                    area.addEventListener("input", function(event)
                     {
                         /** Блокируем кнопку и показываем прелоад */
-                        modal.querySelectorAll('.spinner-border').forEach(function(indicator)
+                        modal.querySelectorAll(".spinner-border").forEach(function(indicator)
                         {
-                            btn = indicator.closest('button');
+                            btn = indicator.closest("button");
 
-                            indicator.classList.remove('d-none');
+                            indicator.classList.remove("d-none");
                             btn.disabled = true;
-                            btn.type = 'button';
+                            btn.type = "button";
                         });
                     });
 
-                    area.addEventListener('input', replaceGeocodeAddress.debounce(2000));
+                    area.addEventListener("input", replaceGeocodeAddress.debounce(2000));
                 }
 
                 /** Инициируем карту */
@@ -303,11 +313,11 @@ function replaceGeocodeAddress()
             });
 
 
-            modal.querySelectorAll('form').forEach(function(forms)
+            modal.querySelectorAll("form").forEach(function(forms)
             {
 
                 /* событие отправки формы */
-                forms.addEventListener('submit', function(event)
+                forms.addEventListener("submit", function(event)
                 {
 
                     console.log();
@@ -330,7 +340,8 @@ function replaceGeocodeAddress()
             }
 
 
-        } else
+        }
+        else
         {
             /* Закрываем модальное окно */
             //let myModalEl = document.querySelector('#modal')
@@ -349,9 +360,9 @@ function replaceGeocodeAddress()
 
 function init()
 {
-    let geocode = document.getElementById('user_address_form_desc');
-    let latitude = document.getElementById('user_address_form_latitude');
-    let longitude = document.getElementById('user_address_form_longitude');
+    let geocode = document.getElementById("user_address_form_desc");
+    let latitude = document.getElementById("user_address_form_latitude");
+    let longitude = document.getElementById("user_address_form_longitude");
 
     if(latitude === null || longitude === null)
     {
@@ -359,20 +370,20 @@ function init()
     }
 
     myMap = new ymaps.Map("map", {
-        center: [latitude.value, longitude.value],
-        controls: ['routeButtonControl', 'fullscreenControl'],
-        zoom: geocode.value ? 17 : 6
+        center : [latitude.value, longitude.value],
+        controls : ["routeButtonControl", "fullscreenControl"],
+        zoom : geocode.value ? 17 : 6,
     });
 
     if(geocode.value)
     {
         /** Метка на карте */
         myMap.geoObjects.add(new ymaps.Placemark([latitude.value, longitude.value], {
-            balloonContent: geocode.value,
-            iconCaption: geocode.value
+            balloonContent : geocode.value,
+            iconCaption : geocode.value,
         }, {
-            preset: 'islands',
-            iconColor: '#4684D0'
+            preset : "islands",
+            iconColor : "#4684D0",
         }));
     }
 
@@ -385,91 +396,87 @@ async function submitAddressForm(forms)
     const data = new FormData(forms);
 
     // /* показываем индикатор */
-    let indicator = forms.querySelector('.spinner-border');
+    let indicator = forms.querySelector(".spinner-border");
 
     if(indicator)
     {
-        btn = indicator.closest('button');
+        btn = indicator.closest("button");
 
-        indicator.classList.remove('d-none');
+        indicator.classList.remove("d-none");
         btn.disabled = true;
-        btn.type = 'button';
+        btn.type = "button";
     }
 
     await fetch(forms.action, {
-        method: forms.method, // *GET, POST, PUT, DELETE, etc.
+        method : forms.method, // *GET, POST, PUT, DELETE, etc.
         //mode: 'same-origin', // no-cors, *cors, same-origin
-        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-        credentials: 'same-origin', // include, *same-origin, omit
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'
+        cache : "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+        credentials : "same-origin", // include, *same-origin, omit
+        headers : {
+            "X-Requested-With" : "XMLHttpRequest",
         },
-        redirect: 'follow', // manual, *follow, error
-        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-        body: data // body data type must match "Content-Type" header
-    })
+        redirect : "follow", // manual, *follow, error
+        referrerPolicy : "no-referrer", // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body : data, // body data type must match "Content-Type" header
+    }).then((response) =>
+    {
 
-        .then((response) =>
+        closeProgress();
+        btn.type = "submit";
+
+        const contentType = response.headers.get("content-type");
+        if(!contentType || !contentType.includes("application/json"))
         {
 
-            closeProgress();
-            btn.type = 'submit';
+            $errorFormHandler = "{ \"type\":\"danger\" , " +
+                "\"header\":\"Ошибка\"  , " +
+                "\"message\" : \"Возникла ошибка при заполнении\" }";
 
-            const contentType = response.headers.get('content-type');
-            if(!contentType || !contentType.includes('application/json'))
-            {
-
-                $errorFormHandler = '{ "type":"danger" , ' +
-                    '"header":"Ошибка"  , ' +
-                    '"message" : "Возникла ошибка при заполнении" }';
-
-                createToast(JSON.parse($errorFormHandler));
+            createToast(JSON.parse($errorFormHandler));
 
 
-                throw new TypeError("Oops, we haven't got JSON!");
-            }
+            throw new TypeError("Oops, we haven't got JSON!");
+        }
 
-            /* Закрываем модальное окно */
-            //let myModalEl = document.querySelector('#modal')
-            //let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
-            geoModal.hide();
+        /* Закрываем модальное окно */
+        //let myModalEl = document.querySelector('#modal')
+        //let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
+        geoModal.hide();
 
-            if(response.status === 302)
-            {
-                window.location.href = '/refresh';
-                return;
-            }
+        if(response.status === 302)
+        {
+            window.location.href = "/refresh";
+            return;
+        }
 
-            return response.json();
-        })
+        return response.json();
+    }).then((data) =>
+    {
 
-        .then((data) =>
+
+        if(data === undefined)
         {
 
+            return false;
+        }
 
-            if(data === undefined)
-            {
+        if(data.status === 200 && data.redirect !== undefined)
+        {
+            window.location.href = data.redirect;
 
-                return false;
-            }
+            return false;
+        }
 
-            if(data.status === 200 && data.redirect !== undefined)
-            {
-                window.location.href = data.redirect;
+        createToast(data);
 
-                return false;
-            }
+        if(data.status !== 200)
+        {
+            return;
+        }
 
-            createToast(data);
+        changeAddress(forms);
 
-            if(data.status !== 200)
-            {
-                return;
-            }
-
-            changeAddress(forms);
-
-        });
+    });
 
 
     return false;
@@ -486,10 +493,10 @@ function changeAddress(forms)
 
     // user_address_form
 
-    if(forms !== false && forms.name === 'user_address_form')
+    if(forms !== false && forms.name === "user_address_form")
     {
         /** Меняем кнопку submit */
-        let btn = forms.querySelector('button[type="submit"]');
+        let btn = forms.querySelector("button[type=\"submit\"]");
 
         var inputs = forms.elements;
 
@@ -497,10 +504,10 @@ function changeAddress(forms)
         {
 
             /** Заполняем описание */
-            if(inputs[i].id === 'user_address_form_desc')
+            if(inputs[i].id === "user_address_form_desc")
             {
 
-                document.querySelectorAll('[data-address]').forEach(function(area)
+                document.querySelectorAll("[data-address]").forEach(function(area)
                 {
                     area.value = inputs[i].value;
                 });
@@ -508,10 +515,10 @@ function changeAddress(forms)
 
 
             /** Заполянем аддрес */
-            if(inputs[i].id === 'user_address_form_address')
+            if(inputs[i].id === "user_address_form_address")
             {
 
-                let dataGeocode = document.querySelector('[data-geocode]');
+                let dataGeocode = document.querySelector("[data-geocode]");
 
                 if(dataGeocode)
                 {
@@ -521,10 +528,10 @@ function changeAddress(forms)
             }
 
             /** Заполянем Широту */
-            if(inputs[i].id === 'user_address_form_latitude')
+            if(inputs[i].id === "user_address_form_latitude")
             {
 
-                let dataLatitude = document.querySelector('[data-latitude]');
+                let dataLatitude = document.querySelector("[data-latitude]");
 
                 if(dataLatitude)
                 {
@@ -533,11 +540,11 @@ function changeAddress(forms)
             }
 
             /** Заполянем Долготу */
-            if(inputs[i].id === 'user_address_form_longitude')
+            if(inputs[i].id === "user_address_form_longitude")
             {
 
 
-                let dataLongitude = document.querySelector('[data-longitude]');
+                let dataLongitude = document.querySelector("[data-longitude]");
 
                 if(dataLongitude)
                 {
