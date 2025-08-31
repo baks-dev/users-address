@@ -1,6 +1,6 @@
 <?php
 /*
- *  Copyright 2024.  Baks.dev <admin@baks.dev>
+ *  Copyright 2025.  Baks.dev <admin@baks.dev>
  *  
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -29,13 +29,11 @@ use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\Services\GeocodeAddressParser;
 use BaksDev\Users\Address\Type\Geocode\GeocodeAddressUid;
 use Doctrine\ORM\EntityManagerInterface;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group geocode-address
- * @group geocode-address-parser-test
- */
+#[Group('users-address')]
 #[When(env: 'test')]
 class GeocodeAddressParserTest extends KernelTestCase
 {

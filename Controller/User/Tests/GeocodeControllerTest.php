@@ -24,10 +24,11 @@
 namespace BaksDev\Users\Address\Controller\User\Tests;
 
 use BaksDev\Users\User\Tests\TestUserAccount;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/** @group users-address */
+#[Group('users-address')]
 #[When(env: 'test')]
 final class GeocodeControllerTest extends WebTestCase
 {

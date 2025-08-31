@@ -26,12 +26,11 @@ declare(strict_types=1);
 namespace BaksDev\Users\Address\Api\Tests;
 
 use BaksDev\Users\Address\Api\YandexMarketAddressRequest;
+use PHPUnit\Framework\Attributes\Group;
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 use Symfony\Component\DependencyInjection\Attribute\When;
 
-/**
- * @group users-address
- */
+#[Group('users-address')]
 #[When(env: 'test')]
 class YandexMarketAddressRequestTest extends KernelTestCase
 {
