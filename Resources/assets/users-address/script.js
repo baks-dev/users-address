@@ -20,7 +20,7 @@
  *  THE SOFTWARE.
  */
 
-addressLength = 10;
+addressLength = 5;
 
 dataUserAddress = null;
 
