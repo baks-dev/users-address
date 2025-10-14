@@ -89,7 +89,16 @@ final class GeocodeDistance
 
     public function isEquals(): bool
     {
-        $this->validate();
+        /** Если один из параметров пустой - возвращаем true */
+        if(
+            empty($this->fromLongitude) ||
+            empty($this->fromLatitude) ||
+            empty($this->toLongitude) ||
+            empty($this->toLatitude)
+        )
+        {
+            return true;
+        }
 
         return $this->fromLatitude === $this->toLatitude && $this->fromLongitude === $this->toLongitude;
     }
@@ -105,11 +114,10 @@ final class GeocodeDistance
         //            return NAN;
         //        }
 
-        if($this->isEquals())
+        if(true === $this->isEquals())
         {
             return 0;
         }
-
 
         $dLat = deg2rad($this->toLatitude - $this->fromLatitude);
         $dLon = deg2rad($this->toLongitude - $this->fromLongitude);
