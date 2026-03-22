@@ -34,6 +34,6 @@ return static function(TwigConfig $twig) {
 
     $twig->path(
         BaksDevUsersAddressBundle::PATH.implode(DIRECTORY_SEPARATOR, ['Resources', 'view', '']), // .'Resources/view',
-        'users-address'
+        'users-address',
     );
 };

@@ -48,6 +48,6 @@ return static function(ContainerConfigurator $configurator): void {
 
     $services->alias(
         GeocodeAddressInterface::class.' $geocodeAddress',
-        GeocodeAddressRepository::class
+        GeocodeAddressRepository::class,
     );
 };

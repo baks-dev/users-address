@@ -62,8 +62,8 @@ final class YandexMarketTokenRequest
             '/v3/',
             ['query' => [
                 'apikey' => $this->apikey,
-                'lang' => $this->getLangCountry()
-            ]]
+                'lang' => $this->getLangCountry(),
+            ]],
         );
 
         if($config->getStatusCode() !== 200)
@@ -80,20 +80,21 @@ final class YandexMarketTokenRequest
     }
 
     /**
-     * HttpClient
-     */
-    public function getHttpClient(): HttpClientInterface
-    {
-        return $this->httpClient;
-    }
-
-    /**
      * Метод возвращает региональность в формате в стандарте ISO 639-1
+     *
      * @example ru_RU
      */
     public function getLangCountry(): string
     {
         return $this->local->getLangCountry();
+    }
+
+    /**
+     * HttpClient
+     */
+    public function getHttpClient(): HttpClientInterface
+    {
+        return $this->httpClient;
     }
 
     /**

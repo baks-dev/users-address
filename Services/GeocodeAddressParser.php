@@ -79,8 +79,8 @@ final readonly class GeocodeAddressParser
             $this->logger->critical('users-address: Ошибка при получении геолокации адреса',
                 [
                     self::class.':'.__LINE__,
-                    $address
-                ]
+                    $address,
+                ],
             );
 
             return false;
@@ -89,7 +89,7 @@ final readonly class GeocodeAddressParser
         /** Пробуем повторно определить адрес по геолокации в локальном хранилище */
         $GeocodeAddress = $this->addressByGeocode->find(
             $GeocodeAddressDTO->getLatitude(),
-            $GeocodeAddressDTO->getLongitude()
+            $GeocodeAddressDTO->getLongitude(),
         );
 
         if($GeocodeAddress instanceof GeocodeAddress)

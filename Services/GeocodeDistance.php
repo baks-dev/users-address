@@ -87,22 +87,6 @@ final class GeocodeDistance
         return $this;
     }
 
-    public function isEquals(): bool
-    {
-        /** Если один из параметров пустой - возвращаем true */
-        if(
-            empty($this->fromLongitude) ||
-            empty($this->fromLatitude) ||
-            empty($this->toLongitude) ||
-            empty($this->toLatitude)
-        )
-        {
-            return true;
-        }
-
-        return $this->fromLatitude === $this->toLatitude && $this->fromLongitude === $this->toLongitude;
-    }
-
     public function getDistance(): float
     {
         /*
@@ -129,6 +113,22 @@ final class GeocodeDistance
         // Расстояние между точками в км
         $earth_radius = 6371; // Радиус Земли в км
         return $earth_radius * $c;
+    }
+
+    public function isEquals(): bool
+    {
+        /** Если один из параметров пустой - возвращаем true */
+        if(
+            empty($this->fromLongitude) ||
+            empty($this->fromLatitude) ||
+            empty($this->toLongitude) ||
+            empty($this->toLatitude)
+        )
+        {
+            return true;
+        }
+
+        return $this->fromLatitude === $this->toLatitude && $this->fromLongitude === $this->toLongitude;
     }
 
     /** Возвращает расстояние округляя её до целого числа */

@@ -51,7 +51,7 @@ final readonly class AddressByGeocodeRepository implements AddressByGeocodeInter
             ->setParameter(
                 key: 'latitude',
                 value: $latitude,
-                type: GpsLatitude::TYPE
+                type: GpsLatitude::TYPE,
             );
 
         $orm
@@ -59,7 +59,7 @@ final readonly class AddressByGeocodeRepository implements AddressByGeocodeInter
             ->setParameter(
                 key: 'longitude',
                 value: $longitude,
-                type: GpsLongitude::TYPE
+                type: GpsLongitude::TYPE,
             );
 
         return $orm

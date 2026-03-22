@@ -32,7 +32,7 @@ return static function(RoutingConfigurator $routes) {
         $MODULE.'Controller',
         'attribute',
         false,
-        $MODULE.implode(DIRECTORY_SEPARATOR, ['Controller', '**', '*Test.php'])
+        $MODULE.implode(DIRECTORY_SEPARATOR, ['Controller', '**', '*Test.php']),
     )
         ->prefix(\BaksDev\Core\Type\Locale\Locale::routes())
         ->namePrefix('users-address:');

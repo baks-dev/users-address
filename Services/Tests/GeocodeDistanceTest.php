@@ -37,11 +37,6 @@ final class GeocodeDistanceTest extends TestCase
 {
     private GeocodeDistance $geocodeDistance;
 
-    protected function setUp(): void
-    {
-        $this->geocodeDistance = new GeocodeDistance();
-    }
-
     public function testIsEqualsTrue(): void
     {
         $geocode = $this->geocodeDistance
@@ -72,7 +67,7 @@ final class GeocodeDistanceTest extends TestCase
             ->toLatitude(10)
             ->toLongitude(20);
 
-        $this->assertEquals($geocode->getDistance(), 0,);
+        $this->assertEquals($geocode->getDistance(), 0);
 
         //$this->assertTrue(is_nan($geocode->getDistance()));
     }
@@ -153,6 +148,11 @@ final class GeocodeDistanceTest extends TestCase
             ->toLongitude(30);
 
         $geocode->validate();
+    }
+
+    protected function setUp(): void
+    {
+        $this->geocodeDistance = new GeocodeDistance();
     }
 
 }

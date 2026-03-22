@@ -42,7 +42,7 @@ final class UserAddressForm extends AbstractType
     {
         $builder->add(
             'address',
-            HiddenType::class
+            HiddenType::class,
         );
 
         $builder->get('address')->addModelTransformer(
@@ -52,13 +52,13 @@ final class UserAddressForm extends AbstractType
                 },
                 function($address) {
                     return new GeocodeAddressUid($address);
-                }
-            )
+                },
+            ),
         );
 
         $builder->add(
             'desc',
-            AddressFieldForm::class
+            AddressFieldForm::class,
         );
 
         $builder->addEventListener(
@@ -71,27 +71,27 @@ final class UserAddressForm extends AbstractType
                 $form->add(
                     'desc',
                     AddressFieldForm::class,
-                    ['attr' => ['data-address' => 'true']]
+                    ['attr' => ['data-address' => 'true']],
                 );
 
                 $form->add(
                     'latitude',
-                    HiddenType::class
+                    HiddenType::class,
                 );
 
                 $form->add(
                     'longitude',
-                    HiddenType::class
+                    HiddenType::class,
                 );
 
-            }
+            },
         );
 
         /* Сохранить */
         $builder->add(
             'geocode',
             SubmitType::class,
-            ['label' => 'Yes', 'label_html' => true, 'attr' => ['class' => 'btn-primary']]
+            ['label' => 'Yes', 'label_html' => true, 'attr' => ['class' => 'btn-primary']],
         );
     }
 

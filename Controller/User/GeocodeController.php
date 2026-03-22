@@ -98,7 +98,7 @@ final class GeocodeController extends AbstractController
                         'message' => 'Невозможно определить адрес местоположения',
                         'status' => 400,
                     ],
-                    400
+                    400,
                 );
             }
 
@@ -121,7 +121,7 @@ final class GeocodeController extends AbstractController
             ->createForm(
                 type: UserAddressForm::class,
                 data: $UsersProfileAddressDTO,
-                options: ['action' => $this->generateUrl('users-address:user.geocode', ['address' => $geo])]
+                options: ['action' => $this->generateUrl('users-address:user.geocode', ['address' => $geo])],
             )
             ->handleRequest($request);
 
@@ -136,7 +136,7 @@ final class GeocodeController extends AbstractController
                     'header' => 'Ваш адрес',
                     'message' => $GeocodeAddressDTO->getAddress(),
                     'status' => 200,
-                ]
+                ],
             );
         }
 

@@ -35,7 +35,7 @@ final class AddressFieldForm extends AbstractType
     public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
-            'attr' => ['data-address' => 'true']
+            'attr' => ['data-address' => 'true'],
         ]);
     }
 
