@@ -38,8 +38,6 @@ final class YandexMarketTokenRequest
 
     private Locale $local;
 
-    private string $token;
-
     public function __construct(
         TranslatorInterface $translator,
         #[Autowire(env: 'MAPS_YANDEX_API')] private readonly string $apikey
@@ -54,29 +52,9 @@ final class YandexMarketTokenRequest
         $userAgent = $UserAgentGenerator->genDesktop();
 
         $this->httpClient = HttpClient::create(['headers' => ['User-Agent' => $userAgent]])
-            ->withOptions(['base_uri' => 'https://api-maps.yandex.ru']);
+            ->withOptions(['base_uri' => 'https://geocode-maps.yandex.ru']);
 
-        /** Получаем конфиг  */
-        $config = $this->httpClient->request(
-            'GET',
-            '/v3/',
-            ['query' => [
-                'apikey' => $this->apikey,
-                'lang' => $this->getLangCountry(),
-            ]],
-        );
-
-        if($config->getStatusCode() !== 200)
-        {
-            return null;
-        }
-
-        $config = $config->getContent();
-
-        /** Получаем токен запроса */
-        preg_match('/"token":"([^"]+)"/', $config, $matches);
-
-        return $matches[1];
+        return $this->apikey;
     }
 
     /**

@@ -26,14 +26,26 @@ declare(strict_types=1);
 namespace BaksDev\Users\Address\Api;
 
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
-use Exception;
+use DateInterval;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
+use Symfony\Component\DependencyInjection\Attribute\Target;
 use Symfony\Contracts\Cache\ItemInterface;
 
 final readonly class YandexMarketAddressRequest
 {
-    public function __construct(private YandexMarketTokenRequest $tokenRequest) {}
+    public function __construct(
+        #[Target('usersAddressLogger')] private LoggerInterface $logger,
+        private YandexMarketTokenRequest $tokenRequest
+    ) {}
 
+    /**
+     * Позволяет узнать:
+     * - координаты объекта по его адресу или названию
+     * - узнать адрес объекта по его кординатам
+     *
+     * @see https://yandex.ru/maps-api/docs/geocoder-api/response.html
+     */
     public function getAddress(string $address): GeocodeAddressDTO|false
     {
         if(empty($this->tokenRequest->getToken()))
@@ -43,39 +55,42 @@ final readonly class YandexMarketAddressRequest
 
         $cache = new FilesystemAdapter('users-address');
         $fileName = md5($address);
+        $cache->deleteItem($fileName);
 
-        /* Кешируем результат на 30 дней */
+
         $content = $cache->get($fileName, function(ItemInterface $item) use ($address) {
 
-            $item->expiresAfter(86400 * 30);
-
-            $token = $this->tokenRequest->getToken();
+            /* По умолчанию кешируем на 1 сек */
+            $item->expiresAfter(DateInterval::createFromDateString('1 seconds'));
 
             $data = [
-                'text' => $address,
-                'token' => $token,
-                'apikey' => $this->tokenRequest->getApikey(),
-                'format' => 'json',
-                'rspn' => 0,
-                'lang' => $this->tokenRequest->getLangCountry(),
-                'type' => 'geo',
-                'properties' => 'addressdetails',
-                'origin' => 'jsapi2Geocoder',
+                'geocode' => $address, // Адрес либо географические координаты искомого объекта.
+                'apikey' => $this->tokenRequest->getApikey(), // Ключ, полученный в Кабинете Разработчика.
+                'format' => 'json', // Формат ответа геокодера
+                'rspn' => 0, // Флаг, задающий ограничение поиска указанной областью.
+                'lang' => $this->tokenRequest->getLangCountry(), // Язык ответа и региональные особенности карты.
+                // signature - Подпись запроса.
             ];
 
-            try
+            $request = $this->tokenRequest->getHttpClient()->request('GET', '/v1/', ['query' => $data]);
+
+            $content = $request->getContent();
+
+            if($request->getStatusCode() !== 200)
             {
-                /** Получаем геоданные */
-                $result = $this->tokenRequest->getHttpClient()->request('GET', '/services/search/v2/', ['query' => $data]);
-                $content = $result->getContent();
-            }
-            catch(Exception)
-            {
-                $item->expiresAfter(5);
+                $this->logger->critical(
+                    sprintf('users-address: Ошибка %s при определении адреса геолокации', $request->getStatusCode()),
+                    [self::class.':'.__LINE__, $address, $content],
+                );
+
                 return false;
             }
 
+            /* Кешируем результат на 30 дней */
+            $item->expiresAfter(DateInterval::createFromDateString('30 days'));
+
             return $content;
+
         });
 
         if(false === $content || false === json_validate($content))
@@ -84,20 +99,16 @@ final readonly class YandexMarketAddressRequest
         }
 
         $result = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
+        $features = current($result->response->GeoObjectCollection->featureMember);
 
-        $features = current($result->features);
-        $GeocoderMetaData = $features->properties->GeocoderMetaData;
-        $arrCoordinates = $features->geometry->coordinates;
-
+        $GeocoderMetaData = $features->GeoObject->metaDataProperty->GeocoderMetaData;
         $AddressDetails = $GeocoderMetaData->Address;
 
-        $GeocodeAddressDTO = new GeocodeAddressDTO();
+        /**
+         * Заполняем объект результатом
+         */
 
-        if(isset($arrCoordinates[1], $arrCoordinates[0]))
-        {
-            $GeocodeAddressDTO->setLatitude($arrCoordinates[1]);
-            $GeocodeAddressDTO->setLongitude($arrCoordinates[0]);
-        }
+        $GeocodeAddressDTO = new GeocodeAddressDTO();
 
         $GeocodeAddressDTO->setAddress($AddressDetails->formatted);
         $GeocodeAddressDTO->setPostal($AddressDetails->postal_code ?? null);
@@ -107,12 +118,24 @@ final readonly class YandexMarketAddressRequest
             match ($component->kind)
             {
                 "country" => $GeocodeAddressDTO->setCountry($component->name),
-                "area" => $GeocodeAddressDTO->setArea($component->name),
+                "area" => false === empty($GeocodeAddressDTO->getArea()) ?: $GeocodeAddressDTO->setArea($component->name),
                 "locality", "province" => $GeocodeAddressDTO->setLocality($component->name),
                 "street" => $GeocodeAddressDTO->setStreet($component->name),
                 "house" => $GeocodeAddressDTO->setHouse($component->name),
                 default => null
             };
+        }
+
+        /**
+         * Координаты
+         */
+
+        $arrCoordinates = explode(' ', $features->GeoObject->Point->pos);
+
+        if(isset($arrCoordinates[1], $arrCoordinates[0]))
+        {
+            $GeocodeAddressDTO->setLatitude($arrCoordinates[1]);
+            $GeocodeAddressDTO->setLongitude($arrCoordinates[0]);
         }
 
         return $GeocodeAddressDTO;
