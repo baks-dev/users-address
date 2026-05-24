@@ -67,7 +67,7 @@ final class GeocodeController extends AbstractController
 
         $GeocodeAddressDTO = new GeocodeAddressDTO();
 
-        /** Если адрес на указан - возвращаем адрес проекта */
+        /** Если адрес не указан - возвращаем адрес проекта */
         if(true === empty($address) && false === empty($PROJECT_PROFILE))
         {
             $UserProfileResult = $UserProfileByIdRepository
@@ -79,10 +79,14 @@ final class GeocodeController extends AbstractController
                 $UsersProfileAddressDTO
                     ->setLatitude($UserProfileResult->getLatitude())
                     ->setLongitude($UserProfileResult->getLongitude())
+                    ->setDesc($UserProfileResult->getLocation());
+
+                $GeocodeAddressDTO
+                    ->setLatitude($UserProfileResult->getLatitude())
+                    ->setLongitude($UserProfileResult->getLongitude())
                     ->setAddress($UserProfileResult->getLocation());
             }
         }
-
 
         if(!empty($address))
         {

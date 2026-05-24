@@ -41,8 +41,8 @@ final readonly class GeocodeAddressRequest
 {
     public function __construct(
         #[Target('usersAddressLogger')] private LoggerInterface $logger,
-        #[Autowire(env: 'DADATA_KEY')] private ?string $KEY,
-        #[Autowire(env: 'DADATA_SECRET')] private ?string $SECRET,
+        #[Autowire(env: 'DADATA_KEY')] private ?string $KEY = null,
+        #[Autowire(env: 'DADATA_SECRET')] private ?string $SECRET = null,
     ) {}
 
     public function getAddress(string $address): GeocodeAddressDTO|false
@@ -50,10 +50,18 @@ final readonly class GeocodeAddressRequest
         $cache = new FilesystemAdapter('users-address');
         $fileName = md5($address);
 
+
         $cache->deleteItem('dadata.'.$fileName);
         $content = $cache->get('dadata.'.$fileName, function(ItemInterface $item) use ($address) {
 
             $item->expiresAfter(5);
+
+
+            if(empty($this->KEY) || empty($ths->SECRET))
+            {
+                return false;
+            }
+
 
             /** Получаем геоданные */
             $request = $this->TokenHttpClient()
@@ -90,6 +98,8 @@ final readonly class GeocodeAddressRequest
 
         });
 
+
+        /** Если результат геолокации найден - присваиваем свойства DTO */
         if(false === empty($content))
         {
             $resAddress = null;

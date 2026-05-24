@@ -89,7 +89,7 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->longitude;
     }
 
-    public function setLongitude(float|string|GpsLongitude $longitude): void
+    public function setLongitude(float|string|GpsLongitude $longitude): self
     {
         if(($longitude instanceof GpsLongitude) === false)
         {
@@ -97,6 +97,8 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         }
 
         $this->longitude = $longitude;
+
+        return $this;
     }
 
     /**
@@ -107,7 +109,7 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->latitude;
     }
 
-    public function setLatitude(float|string|GpsLatitude $latitude): void
+    public function setLatitude(float|string|GpsLatitude $latitude): self
     {
         if(($latitude instanceof GpsLatitude) === false)
         {
@@ -115,6 +117,8 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         }
 
         $this->latitude = new GpsLatitude($latitude);
+
+        return $this;
     }
 
     /** Страна */
@@ -123,9 +127,10 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->country;
     }
 
-    public function setCountry(?string $country): void
+    public function setCountry(?string $country): self
     {
         $this->country = $country;
+        return $this;
     }
 
     /** Область, регион */
@@ -134,9 +139,10 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->area;
     }
 
-    public function setArea(?string $area): void
+    public function setArea(?string $area): self
     {
         $this->area = $area;
+        return $this;
     }
 
     /** Город */
@@ -145,9 +151,10 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->locality;
     }
 
-    public function setLocality(?string $locality): void
+    public function setLocality(?string $locality): self
     {
         $this->locality = $locality;
+        return $this;
     }
 
     /** Улица */
@@ -156,9 +163,10 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->street;
     }
 
-    public function setStreet(?string $street): void
+    public function setStreet(?string $street): self
     {
         $this->street = $street;
+        return $this;
     }
 
     /** Дом */
@@ -167,9 +175,10 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->house;
     }
 
-    public function setHouse(?string $house): void
+    public function setHouse(?string $house): self
     {
         $this->house = $house;
+        return $this;
     }
 
     /** Полный адрес */
@@ -178,7 +187,7 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->address;
     }
 
-    public function setAddress(?string $address): void
+    public function setAddress(?string $address): self
     {
         $address = str_replace(
             ['область', 'район', 'улица'],
@@ -187,6 +196,8 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         );
 
         $this->address = $address;
+
+        return $this;
     }
 
     /** Почтовый индекс */
@@ -195,8 +206,9 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
         return $this->postal;
     }
 
-    public function setPostal(?string $postal): void
+    public function setPostal(?string $postal): self
     {
         $this->postal = $postal;
+        return $this;
     }
 }
