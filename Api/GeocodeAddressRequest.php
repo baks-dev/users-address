@@ -56,12 +56,10 @@ final readonly class GeocodeAddressRequest
 
             $item->expiresAfter(5);
 
-
-            if(empty($this->KEY) || empty($ths->SECRET))
+            if(empty($this->KEY) || empty($this->SECRET))
             {
                 return false;
             }
-
 
             /** Получаем геоданные */
             $request = $this->TokenHttpClient()
