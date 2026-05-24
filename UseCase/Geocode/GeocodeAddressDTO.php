@@ -180,6 +180,12 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
 
     public function setAddress(?string $address): void
     {
+        $address = str_replace(
+            ['область', 'район', 'улица'],
+            ['обл.', 'р-н', 'ул.'],
+            $address,
+        );
+
         $this->address = $address;
     }
 

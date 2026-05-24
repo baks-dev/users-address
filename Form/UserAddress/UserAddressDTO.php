@@ -71,9 +71,10 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
         return $this->address;
     }
 
-    public function setAddress(GeocodeAddress|GeocodeAddressUid $address): void
+    public function setAddress(GeocodeAddress|GeocodeAddressUid $address): self
     {
         $this->address = $address instanceof GeocodeAddress ? $address->getId() : $address;
+        return $this;
     }
 
     //    /** Идентификатор профиля пользователя */
@@ -93,9 +94,10 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
         return $this->longitude;
     }
 
-    public function setLongitude(string|GpsLongitude $longitude): void
+    public function setLongitude(string|GpsLongitude $longitude): self
     {
         $this->longitude = $longitude instanceof GpsLongitude ? $longitude : new GpsLongitude($longitude);
+        return $this;
     }
 
     /** Широта */
@@ -104,9 +106,10 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
         return $this->latitude;
     }
 
-    public function setLatitude(string|GpsLatitude $latitude): void
+    public function setLatitude(string|GpsLatitude $latitude): self
     {
         $this->latitude = $latitude instanceof GpsLatitude ? $latitude : new GpsLatitude($latitude);
+        return $this;
     }
 
     /** Полный адрес */
@@ -115,9 +118,10 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
         return $this->desc;
     }
 
-    public function setDesc(?string $desc): void
+    public function setDesc(?string $desc): self
     {
         $this->desc = $desc;
+        return $this;
     }
 
     /** Флаг */
@@ -129,8 +133,9 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
     /**
      * @param bool $house
      */
-    public function setHouse(bool $house): void
+    public function setHouse(bool $house): self
     {
         $this->house = $house;
+        return $this;
     }
 }

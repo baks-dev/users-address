@@ -29,12 +29,17 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
-use BaksDev\Users\Address\Api\YandexMarketAddressRequest;
+use BaksDev\Users\Address\Api\GeocodeAddressRequest;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\Form\UserAddress\UserAddressDTO;
 use BaksDev\Users\Address\Form\UserAddress\UserAddressForm;
 use BaksDev\Users\Address\Repository\AddressByGeocode\AddressByGeocodeInterface;
+use BaksDev\Users\Address\Repository\GeocodeAddress\GeocodeAddressRepository;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileByIdInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileResult;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
+use Symfony\Component\DependencyInjection\Attribute\Autowire;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -47,10 +52,13 @@ final class GeocodeController extends AbstractController
     #[Route('/geocode/{address}', name: 'user.geocode', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        YandexMarketAddressRequest $geocodeAddress,
+        GeocodeAddressRequest $geocodeAddress,
         AddressByGeocodeInterface $addressByGeocode,
         MessageDispatchInterface $messageDispatch,
+        GeocodeAddressRepository $GeocodeAddressRepository,
+        UserProfileByIdInterface $UserProfileByIdRepository,
         ?string $address = null,
+        #[Autowire(env: 'PROJECT_PROFILE')] ?string $PROJECT_PROFILE = null,
     ): Response
     {
 
@@ -58,6 +66,23 @@ final class GeocodeController extends AbstractController
         $UsersProfileAddressDTO->setDesc($address);
 
         $GeocodeAddressDTO = new GeocodeAddressDTO();
+
+        /** Если адрес на указан - возвращаем адрес проекта */
+        if(true === empty($address) && false === empty($PROJECT_PROFILE))
+        {
+            $UserProfileResult = $UserProfileByIdRepository
+                ->profile(new UserProfileUid($PROJECT_PROFILE))
+                ->find();
+
+            if($UserProfileResult instanceof UserProfileResult)
+            {
+                $UsersProfileAddressDTO
+                    ->setLatitude($UserProfileResult->getLatitude())
+                    ->setLongitude($UserProfileResult->getLongitude())
+                    ->setAddress($UserProfileResult->getLocation());
+            }
+        }
+
 
         if(!empty($address))
         {
@@ -75,6 +100,27 @@ final class GeocodeController extends AbstractController
                 if($GeocodeAddress instanceof GeocodeAddress)
                 {
                     $GeocodeAddress->getDto($GeocodeAddressDTO);
+                }
+            }
+
+            /**
+             * Пробуем найти по адресу в базе
+             */
+            if(empty($GeocodeAddressDTO->getAddress()))
+            {
+                $resultAddress = $GeocodeAddressRepository->fetchGeocodeByAddressAssociative($address);
+
+                if(false === empty($resultAddress))
+                {
+                    $GeocodeAddress = $addressByGeocode->find(
+                        new GpsLatitude($resultAddress['latitude']),
+                        new GpsLongitude($resultAddress['longitude']),
+                    );
+
+                    if($GeocodeAddress instanceof GeocodeAddress)
+                    {
+                        $GeocodeAddress->getDto($GeocodeAddressDTO);
+                    }
                 }
             }
 
@@ -113,7 +159,6 @@ final class GeocodeController extends AbstractController
             // Сохраняем в базу найденные геоданные для последующего выбора
             $messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');
         }
-
 
         $geo = sprintf('%s,%s', $UsersProfileAddressDTO->getLatitude(), $UsersProfileAddressDTO->getLongitude());
 

@@ -29,7 +29,7 @@ use App\Kernel;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
-use BaksDev\Users\Address\Api\YandexMarketAddressRequest;
+use BaksDev\Users\Address\Api\GeocodeAddressRequest;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\Repository\AddressByGeocode\AddressByGeocodeInterface;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
@@ -41,7 +41,7 @@ final readonly class GeocodeAddressParser
     public function __construct(
         #[Target('usersAddressLogger')] private LoggerInterface $logger,
         private AddressByGeocodeInterface $addressByGeocode,
-        private YandexMarketAddressRequest $addressRequest,
+        private GeocodeAddressRequest $addressRequest,
         private MessageDispatchInterface $messageDispatch,
     ) {}
 
@@ -70,6 +70,7 @@ final readonly class GeocodeAddressParser
                 return $GeocodeAddressDTO;
             }
         }
+
 
         /** Если по базе не найдено - пробуем определить по Яндекс-карте */
         $GeocodeAddressDTO = $this->addressRequest->getAddress($address);

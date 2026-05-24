@@ -76,7 +76,9 @@ final class GeocodeAddressRepository implements GeocodeAddressInterface
             ->where('geocode.address = :address')
             ->setParameter('address', $address);
 
-        return $qb->enableCache('users-address', 86400)->fetchAssociative();
+        return $qb
+            ->enableCache('users-address', 86400)
+            ->fetchAssociative();
 
     }
 }
