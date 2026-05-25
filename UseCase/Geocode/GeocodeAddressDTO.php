@@ -208,7 +208,7 @@ final class GeocodeAddressDTO implements GeocodeAddressInterface
 
     public function setPostal(?string $postal): self
     {
-        $this->postal = $postal;
+        $this->postal = empty($postal) ? null : $postal;
         return $this;
     }
 }

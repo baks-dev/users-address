@@ -25,7 +25,9 @@ declare(strict_types=1);
 
 namespace BaksDev\Users\Address\Api\Tests;
 
-use BaksDev\Users\Address\Api\GeocodeAddressRequest;
+use BaksDev\Core\Type\Gps\GpsLatitude;
+use BaksDev\Core\Type\Gps\GpsLongitude;
+use BaksDev\Users\Address\Api\GeocodeToAddressRequest;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
 use PHPUnit\Framework\Attributes\Group;
 use ReflectionClass;
@@ -35,15 +37,23 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 
 #[Group('users-address')]
 #[When(env: 'test')]
-class GeocodeAddressRequestTest extends KernelTestCase
+class GeocodeToAddressRequestTest extends KernelTestCase
 {
-    private const string ADDRESS = 'Балашиха Пионерская 14';
+    // data-latitude="55.627915" data-longitude="37.81628"
+    // "geo_lat" => "56.3063854" "geo_lon" => "38.1502956"
+
+    private const float LATITUDE = 56.3063854;
+
+    private const float LONGITUDE = 38.1502956;
 
     public function testUseCase(): void
     {
-        /** @var GeocodeAddressRequest $GeocodeAddressRequest */
-        $GeocodeAddressRequest = self::getContainer()->get(GeocodeAddressRequest::class);
-        $GeocodeAddressDTO = $GeocodeAddressRequest->getAddress(self::ADDRESS);
+        /** @var GeocodeToAddressRequest $GeocodeToAddressRequest */
+        $GeocodeToAddressRequest = self::getContainer()->get(GeocodeToAddressRequest::class);
+        $GeocodeAddressDTO = $GeocodeToAddressRequest
+            ->setLatitude(new GpsLatitude(self::LATITUDE))
+            ->setLongitude(new GpsLongitude(self::LONGITUDE))
+            ->find();
 
         self::assertInstanceOf(GeocodeAddressDTO::class, $GeocodeAddressDTO);
 

@@ -29,7 +29,8 @@ use BaksDev\Core\Controller\AbstractController;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
-use BaksDev\Users\Address\Api\GeocodeAddressRequest;
+use BaksDev\Users\Address\Api\AddressToGeocodeRequest;
+use BaksDev\Users\Address\Api\GeocodeToAddressRequest;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\Form\UserAddress\UserAddressDTO;
 use BaksDev\Users\Address\Form\UserAddress\UserAddressForm;
@@ -52,46 +53,27 @@ final class GeocodeController extends AbstractController
     #[Route('/geocode/{address}', name: 'user.geocode', methods: ['GET', 'POST'])]
     public function index(
         Request $request,
-        GeocodeAddressRequest $geocodeAddress,
-        AddressByGeocodeInterface $addressByGeocode,
-        MessageDispatchInterface $messageDispatch,
+        AddressByGeocodeInterface $AddressByGeocodeRepository,
         GeocodeAddressRepository $GeocodeAddressRepository,
-        UserProfileByIdInterface $UserProfileByIdRepository,
+
+        AddressToGeocodeRequest $AddressToGeocodeRequest,
+        GeocodeToAddressRequest $GeocodeToAddressRequest,
+        MessageDispatchInterface $messageDispatch,
+
         ?string $address = null,
-        #[Autowire(env: 'PROJECT_PROFILE')] ?string $PROJECT_PROFILE = null,
+
     ): Response
     {
 
         $UsersProfileAddressDTO = new UserAddressDTO();
         $UsersProfileAddressDTO->setDesc($address);
-
         $GeocodeAddressDTO = new GeocodeAddressDTO();
-
-        /** Если адрес не указан - возвращаем адрес проекта */
-        if(true === empty($address) && false === empty($PROJECT_PROFILE))
-        {
-            $UserProfileResult = $UserProfileByIdRepository
-                ->profile(new UserProfileUid($PROJECT_PROFILE))
-                ->find();
-
-            if($UserProfileResult instanceof UserProfileResult)
-            {
-                $UsersProfileAddressDTO
-                    ->setLatitude($UserProfileResult->getLatitude())
-                    ->setLongitude($UserProfileResult->getLongitude())
-                    ->setDesc($UserProfileResult->getLocation());
-
-                $GeocodeAddressDTO
-                    ->setLatitude($UserProfileResult->getLatitude())
-                    ->setLongitude($UserProfileResult->getLongitude())
-                    ->setAddress($UserProfileResult->getLocation());
-            }
-        }
 
         if(!empty($address))
         {
             $address = strip_tags($address);
             $address = str_replace(['@', '#', '$', '%', '^', '!', '?', 'http://', 'https://'], '', $address);
+
 
             /**
              * Если строка содержит геоданные - делаем проверку по базе
@@ -99,11 +81,29 @@ final class GeocodeController extends AbstractController
             if(preg_match('/\d+\.\d+(,\s?)\d+\.\d+/', $address))
             {
                 $geoData = explode(',', $address);
-                $GeocodeAddress = $addressByGeocode->find(new GpsLatitude($geoData[0]), new GpsLongitude($geoData[1]));
 
-                if($GeocodeAddress instanceof GeocodeAddress)
+                $GeocodeAddress = $AddressByGeocodeRepository
+                    ->find(
+                        latitude: new GpsLatitude($geoData[0]),
+                        longitude: new GpsLongitude($geoData[1]),
+                    );
+
+                /** Если найден геолокация по базе - заполняем из базы */
+                if(true === ($GeocodeAddress instanceof GeocodeAddress))
                 {
-                    $GeocodeAddress->getDto($GeocodeAddressDTO);
+                    $GeocodeAddressDTO
+                        ->setLatitude($GeocodeAddress->getLatitude())
+                        ->setLongitude($GeocodeAddress->getLongitude())
+                        ->setAddress($GeocodeAddress->getAddress());
+                }
+
+                /** Если по базе геолокации не найдено - пробуем найти по API */
+                if(false === ($GeocodeAddress instanceof GeocodeAddress))
+                {
+                    $GeocodeAddressDTO = $GeocodeToAddressRequest
+                        ->setLatitude(new GpsLatitude($geoData[0]))
+                        ->setLongitude(new GpsLongitude($geoData[1]))
+                        ->find();
                 }
             }
 
@@ -114,26 +114,22 @@ final class GeocodeController extends AbstractController
             {
                 $resultAddress = $GeocodeAddressRepository->fetchGeocodeByAddressAssociative($address);
 
+                /** Если найден результат адреса по базе */
                 if(false === empty($resultAddress))
                 {
-                    $GeocodeAddress = $addressByGeocode->find(
-                        new GpsLatitude($resultAddress['latitude']),
-                        new GpsLongitude($resultAddress['longitude']),
-                    );
-
-                    if($GeocodeAddress instanceof GeocodeAddress)
-                    {
-                        $GeocodeAddress->getDto($GeocodeAddressDTO);
-                    }
+                    $GeocodeAddressDTO
+                        ->setLatitude($resultAddress['latitude'])
+                        ->setLongitude($resultAddress['longitude'])
+                        ->setAddress($resultAddress['address']);
                 }
-            }
 
-            /**
-             * Если по базе геолокация не найдена - пробуем определить по API
-             */
-            if(empty($GeocodeAddressDTO->getAddress()))
-            {
-                $GeocodeAddressDTO = $geocodeAddress->getAddress($address);
+                /** Если адреса по базе не найдено - пробуем определить по API */
+                if(true === empty($resultAddress))
+                {
+                    $GeocodeAddressDTO = $AddressToGeocodeRequest
+                        ->setAddress($address)
+                        ->find();
+                }
             }
 
             /**
@@ -158,7 +154,7 @@ final class GeocodeController extends AbstractController
             $UsersProfileAddressDTO->setLatitude($GeocodeAddressDTO->getLatitude());
             $UsersProfileAddressDTO->setLongitude($GeocodeAddressDTO->getLongitude());
             $UsersProfileAddressDTO->setDesc($GeocodeAddressDTO->getAddress());
-            $UsersProfileAddressDTO->setHouse(($GeocodeAddressDTO->getHouse() !== null));
+            $UsersProfileAddressDTO->setHouse(!empty($GeocodeAddressDTO->getHouse()));
 
             // Сохраняем в базу найденные геоданные для последующего выбора
             $messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');

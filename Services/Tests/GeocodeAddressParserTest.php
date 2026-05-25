@@ -61,7 +61,8 @@ class GeocodeAddressParserTest extends KernelTestCase
 
         $GeocodeAddressParser = self::getContainer()->get(GeocodeAddressParser::class);
         //$GeocodeAddress = $GeocodeAddressParser->getGeocode('Санкт-Петербург');
-        $GeocodeAddress = $GeocodeAddressParser->getGeocode('Балашиха Пионерская 14');
+        //$GeocodeAddress = $GeocodeAddressParser->getGeocode('Балашиха Пионерская 14');
+        $GeocodeAddress = $GeocodeAddressParser->getGeocode('Дзержинский');
 
         self::assertNotFalse($GeocodeAddress);
 

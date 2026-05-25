@@ -26,7 +26,11 @@ declare(strict_types=1);
 namespace BaksDev\Users\Address\Api;
 
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileByIdInterface;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileResult;
+use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateInterval;
+use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\DependencyInjection\Attribute\Autoconfigure;
@@ -37,24 +41,58 @@ use Symfony\Component\HttpClient\RetryableHttpClient;
 use Symfony\Contracts\Cache\ItemInterface;
 
 #[Autoconfigure(public: true)]
-final readonly class GeocodeAddressRequest
+final class AddressToGeocodeRequest
 {
+    private string|false $address;
+
     public function __construct(
         #[Target('usersAddressLogger')] private LoggerInterface $logger,
+        private readonly UserProfileByIdInterface $UserProfileByIdRepository,
         #[Autowire(env: 'DADATA_KEY')] private ?string $KEY = null,
         #[Autowire(env: 'DADATA_SECRET')] private ?string $SECRET = null,
+        #[Autowire(env: 'PROJECT_PROFILE')] private ?string $PROJECT_PROFILE = null,
     ) {}
 
-    public function getAddress(string $address): GeocodeAddressDTO|false
+    public function getAddressByProjectLocation(): false|GeocodeAddressDTO
     {
+        if(empty($this->PROJECT_PROFILE))
+        {
+            return false;
+        }
+
+        $UserProfileResult = $this->UserProfileByIdRepository
+            ->profile(new UserProfileUid($this->PROJECT_PROFILE))
+            ->find();
+
+        if($UserProfileResult instanceof UserProfileResult)
+        {
+            $GeocodeAddressDTO = new GeocodeAddressDTO();
+
+            $GeocodeAddressDTO
+                ->setLatitude($UserProfileResult->getLatitude())
+                ->setLongitude($UserProfileResult->getLongitude())
+                ->setAddress($UserProfileResult->getLocation());
+
+            return $GeocodeAddressDTO;
+        }
+
+        return false;
+    }
+
+    public function find(): GeocodeAddressDTO|false
+    {
+        if(empty($this->address))
+        {
+            throw new InvalidArgumentException('Invalid Argument Exception Address');
+        }
+
         $cache = new FilesystemAdapter('users-address');
-        $fileName = md5($address);
+        $fileName = md5($this->address);
 
+        //$cache->deleteItem('dadata.'.$fileName);
+        $content = $cache->get('dadata.'.$fileName, function(ItemInterface $item) {
 
-        $cache->deleteItem('dadata.'.$fileName);
-        $content = $cache->get('dadata.'.$fileName, function(ItemInterface $item) use ($address) {
-
-            $item->expiresAfter(5);
+            $item->expiresAfter(DateInterval::createFromDateString('1 day'));
 
             if(empty($this->KEY) || empty($this->SECRET))
             {
@@ -66,7 +104,7 @@ final readonly class GeocodeAddressRequest
                 ->request(
                     'POST',
                     '/api/v1/clean/address',
-                    ['json' => [$address]],
+                    ['json' => [$this->address]],
                 );
 
             if($request->getStatusCode() !== 200)
@@ -76,7 +114,7 @@ final readonly class GeocodeAddressRequest
                     [
                         self::class.':'.__LINE__,
                         $request->getContent(),
-                        $address,
+                        $this->address,
                     ],
                 );
 
@@ -96,29 +134,44 @@ final readonly class GeocodeAddressRequest
 
         });
 
-
         /** Если результат геолокации найден - присваиваем свойства DTO */
         if(false === empty($content))
         {
             $resAddress = null;
 
             $GeocodeAddressDTO = new GeocodeAddressDTO();
-            $GeocodeAddressDTO->setAddress($content['result']);
 
             $resAddress[] = $content['country'];
             $resAddress[] = $content['region'] ? ($content['region_type'] === 'г' ? 'г.'.$content['region'] : $content['region_with_type']) : null; // область
-            $resAddress[] = $content['city'] ? $content['city_type'].'.'.$content['city'] : null; // город
+
+            if($content['city'] !== $content['region'])
+            {
+                $resAddress[] = $content['city'] ? $content['city_type'].'.'.$content['city'] : null; // город
+            }
+
+            if($content['area'] !== $content['region'] && $content['area'] !== $content['city'])
+            {
+                $resAddress[] = $content['area'] ? $content['area_type'].'.'.$content['area'] : null; // город
+            }
+
             $resAddress[] = $content['settlement'] ? $content['settlement_type'].''.$content['settlement'] : null; // поселок
             $resAddress[] = $content['city_district'] ? $content['city_district_type'].'.'.$content['city_district'] : null; // район
             $resAddress[] = $content['street_with_type'] ? $content['street_type'].($content['street_type'] === 'ул' ? '. ' : ' ').$content['street'] : null; // улица
             $resAddress[] = $content['house'] ? $content['house_type'].'.'.$content['house'] : null; // дом
             $resAddress[] = $content['flat'] ? $content['flat_type'].'.'.$content['flat'] : null; // дом
 
-
             $cleanArray = array_filter($resAddress);
             $GeocodeAddressDTO->setAddress(implode(', ', $cleanArray));
             $GeocodeAddressDTO->setLatitude($content['geo_lat']);
             $GeocodeAddressDTO->setLongitude($content['geo_lon']);
+
+            $GeocodeAddressDTO
+                ->setCountry($content['country'])
+                ->setArea($content['region_with_type'])
+                ->setLocality($content['city_with_type'])
+                ->setStreet($content['street_with_type'])
+                ->setHouse($content['house'])
+                ->setPostal($content['postal_code']);
 
             return $GeocodeAddressDTO;
         }
@@ -131,7 +184,7 @@ final readonly class GeocodeAddressRequest
         if(empty($content))
         {
             // Разбиваем по пробелам
-            $words = explode(' ', $address);
+            $words = explode(' ', $this->address);
 
             // пробуем перебирать все вхождения удаляя последнее слово
             while(count($words) > 0)
@@ -140,7 +193,7 @@ final readonly class GeocodeAddressRequest
                 array_pop($words);
                 $current = implode(' ', $words);
 
-                $cache->deleteItem('openstreetmap.'.$fileName);
+                //$cache->deleteItem('openstreetmap.'.$fileName);
                 $content = $cache->get('openstreetmap.'.$fileName, function(ItemInterface $item) use ($current) {
 
                     $item->expiresAfter(5);
@@ -206,7 +259,6 @@ final readonly class GeocodeAddressRequest
         return false;
     }
 
-
     public function TokenHttpClient(): RetryableHttpClient
     {
         return new RetryableHttpClient(
@@ -225,6 +277,11 @@ final readonly class GeocodeAddressRequest
         );
     }
 
+    public function setAddress(false|string $address): self
+    {
+        $this->address = $address;
+        return $this;
+    }
 
     public function freeHttpClient(): RetryableHttpClient
     {

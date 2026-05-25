@@ -29,10 +29,12 @@ use App\Kernel;
 use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
-use BaksDev\Users\Address\Api\GeocodeAddressRequest;
+use BaksDev\Users\Address\Api\AddressToGeocodeRequest;
+use BaksDev\Users\Address\Api\GeocodeToAddressRequest;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\Repository\AddressByGeocode\AddressByGeocodeInterface;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
+use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileByIdInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\DependencyInjection\Attribute\Target;
 
@@ -40,8 +42,9 @@ final readonly class GeocodeAddressParser
 {
     public function __construct(
         #[Target('usersAddressLogger')] private LoggerInterface $logger,
-        private AddressByGeocodeInterface $addressByGeocode,
-        private GeocodeAddressRequest $addressRequest,
+        private AddressByGeocodeInterface $AddressByGeocodeRepository,
+        private AddressToGeocodeRequest $AddressToGeocodeRequest,
+        private GeocodeToAddressRequest $GeocodeToAddressRequest,
         private MessageDispatchInterface $messageDispatch,
     ) {}
 
@@ -58,22 +61,50 @@ final readonly class GeocodeAddressParser
         //$address = 'fdfsdfdsfsdf54sdf4sdf';
         // Москва, Карельский бульвар 6к1 под
 
-        /** Если строка содержит геоданные - делаем проверку по базе */
+        /** Если строка содержит геоданные */
         if(preg_match('/\d+\.\d+(,\s?)\d+\.\d+/', $address))
         {
             $geoData = explode(',', $address);
-            $GeocodeAddress = $this->addressByGeocode->find(new GpsLatitude($geoData[0]), new GpsLongitude($geoData[1]));
+            $GpsLatitude = new GpsLatitude($geoData[0]);
+            $GpsLongitude = new GpsLongitude($geoData[1]);
+
+
+            /** делаем проверку по базе */
+            $GeocodeAddress = $this->AddressByGeocodeRepository
+                ->find(
+                    latitude: $GpsLatitude,
+                    longitude: $GpsLongitude,
+                );
 
             if($GeocodeAddress instanceof GeocodeAddress)
             {
                 $GeocodeAddress->getDto($GeocodeAddressDTO);
                 return $GeocodeAddressDTO;
             }
+
+
+            /**
+             * Если по геолокации в базе не найдено - пробуем определить по API
+             */
+
+            $GeocodeAddressDTO = $this->GeocodeToAddressRequest
+                ->setLatitude($GpsLatitude)
+                ->setLongitude($GpsLongitude)
+                ->find();
+
+            if($GeocodeAddressDTO instanceof GeocodeAddressDTO)
+            {
+                /** Если найден адрес по геолокации - сохраняем */
+                $this->messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');
+                return $GeocodeAddressDTO;
+            }
         }
 
 
-        /** Если по базе не найдено - пробуем определить по Яндекс-карте */
-        $GeocodeAddressDTO = $this->addressRequest->getAddress($address);
+        /** Если по геолокации не найдено - пробуем определить по адресу */
+        $GeocodeAddressDTO = $this->AddressToGeocodeRequest
+            ->setAddress($address)
+            ->find();
 
         if(false === $GeocodeAddressDTO)
         {
@@ -84,13 +115,14 @@ final readonly class GeocodeAddressParser
                 ],
             );
 
-            return false;
+            /** Если при всех способах адрес не определили - возвращаем геолокацию проекта */
+            return $this->AddressToGeocodeRequest->getAddressByProjectLocation();
         }
 
         /** Пробуем повторно определить адрес по геолокации в локальном хранилище */
-        $GeocodeAddress = $this->addressByGeocode->find(
-            $GeocodeAddressDTO->getLatitude(),
-            $GeocodeAddressDTO->getLongitude(),
+        $GeocodeAddress = $this->AddressByGeocodeRepository->find(
+            latitude: $GeocodeAddressDTO->getLatitude(),
+            longitude: $GeocodeAddressDTO->getLongitude(),
         );
 
         if($GeocodeAddress instanceof GeocodeAddress)
@@ -99,7 +131,7 @@ final readonly class GeocodeAddressParser
             return $GeocodeAddressDTO;
         }
 
-        /** Если адрес по геолокации не найден - сохраняем */
+        /** Если геолокацию по базе не нашли - сохраняем для последующих результатов */
         $this->messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');
 
         return $GeocodeAddressDTO;
