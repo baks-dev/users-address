@@ -220,13 +220,6 @@ function geocodeAddress()
             }, {once : true});
 
         }
-        else
-        {
-            /* Закрываем модальное окно */
-            //let myModalEl = document.querySelector('#modal')
-            //let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
-            //modal.hide();
-        }
     });
 
     /*Выполняем запрос*/
@@ -349,16 +342,6 @@ function replaceGeocodeAddress(geo)
             //{
             //    $html = request.responseText;
             //}
-        }
-        else
-        {
-
-            //let $successSupplyToast = "{ \"type\":\"danger\" , " +
-            //    "\"header\":\"Адрес местоположения\"  , " +
-            //    "\"message\" : \"Невозможно определить адрес местоположения\" }";
-            //
-            //createToast(JSON.parse($successSupplyToast));
-
         }
     });
 
