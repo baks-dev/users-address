@@ -30,6 +30,7 @@ use BaksDev\Core\Messenger\MessageDispatchInterface;
 use BaksDev\Core\Type\Gps\GpsLatitude;
 use BaksDev\Core\Type\Gps\GpsLongitude;
 use BaksDev\Users\Address\Api\AddressToGeocodeRequest;
+use BaksDev\Users\Address\Api\AutoCompleteAddressRequest;
 use BaksDev\Users\Address\Api\GeocodeToAddressRequest;
 use BaksDev\Users\Address\Entity\GeocodeAddress;
 use BaksDev\Users\Address\Form\UserAddress\UserAddressDTO;
@@ -55,6 +56,7 @@ final class GeocodeController extends AbstractController
         Request $request,
         AddressByGeocodeInterface $AddressByGeocodeRepository,
         GeocodeAddressRepository $GeocodeAddressRepository,
+        AutoCompleteAddressRequest $AutoCompleteAddressRequest,
 
         AddressToGeocodeRequest $AddressToGeocodeRequest,
         GeocodeToAddressRequest $GeocodeToAddressRequest,
@@ -69,11 +71,10 @@ final class GeocodeController extends AbstractController
         $UsersProfileAddressDTO->setDesc($address);
         $GeocodeAddressDTO = new GeocodeAddressDTO();
 
-        if(!empty($address))
+        if(false === empty($address))
         {
             $address = strip_tags($address);
             $address = str_replace(['@', '#', '$', '%', '^', '!', '?', 'http://', 'https://'], '', $address);
-
 
             /**
              * Если строка содержит геоданные - делаем проверку по базе
@@ -155,6 +156,18 @@ final class GeocodeController extends AbstractController
             $UsersProfileAddressDTO->setLongitude($GeocodeAddressDTO->getLongitude());
             $UsersProfileAddressDTO->setDesc($GeocodeAddressDTO->getAddress());
             $UsersProfileAddressDTO->setHouse(!empty($GeocodeAddressDTO->getHouse()));
+
+            //if(empty($GeocodeAddressDTO->getHouse()))
+            //{
+            $autocomplete = $AutoCompleteAddressRequest
+                ->setAddress($address)
+                ->find();
+
+            if(false === empty($autocomplete))
+            {
+                $UsersProfileAddressDTO->setAutocomplete($autocomplete);
+            }
+            //}
 
             // Сохраняем в базу найденные геоданные для последующего выбора
             $messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');

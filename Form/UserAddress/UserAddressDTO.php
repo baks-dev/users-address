@@ -59,6 +59,9 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
     /** Флаг, что адрес является зданием */
     private bool $house = false;
 
+    /** Другие варианты заполнения */
+    private ?array $autocomplete = null;
+
     public function __construct()
     {
         $this->latitude = new GpsLatitude('55.627915');
@@ -136,6 +139,55 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
     public function setHouse(bool $house): self
     {
         $this->house = $house;
+        return $this;
+    }
+
+    public function getAutocomplete(): ?array
+    {
+        return $this->autocomplete;
+    }
+
+    public function setAutocomplete(array|null|false $autocomplete): self
+    {
+        if(empty($autocomplete))
+        {
+            $this->autocomplete = null;
+            return $this;
+        }
+
+        foreach($autocomplete as $key => $value)
+        {
+            $content = $value['data'];
+
+            $resAddress = null;
+
+            $resAddress[] = $content['country'];
+            $resAddress[] = $content['region'] ? ($content['region_type'] === 'г' ? 'г.'.$content['region'] : $content['region_with_type']) : null; // область
+
+            if($content['area'] !== $content['region'] && $content['area'] !== $content['city'] && $content['area_type'] !== $content['city_type'])
+            {
+                $resAddress[] = $content['area'] ? $content['area_type'].'.'.$content['area'] : null; // город
+            }
+
+            if($content['city'] !== $content['region'])
+            {
+                $resAddress[] = $content['city'] ? $content['city_type'].'.'.$content['city'] : null; // город
+            }
+
+            $resAddress[] = $content['settlement'] ? $content['settlement_type'].''.$content['settlement'] : null; // поселок
+            $resAddress[] = $content['city_district'] ? $content['city_district_type'].'.'.$content['city_district'] : null; // район
+            $resAddress[] = $content['street_with_type'] ? $content['street_type'].($content['street_type'] === 'ул' ? '. ' : ' ').$content['street'] : null; // улица
+            $resAddress[] = $content['house'] ? $content['house_type'].'.'.$content['house'] : null; // дом
+            $resAddress[] = $content['flat'] ? $content['flat_type'].'.'.$content['flat'] : null; // дом
+
+            $cleanArray = array_filter($resAddress);
+
+            $this->autocomplete[$key]['value'] = implode(', ', $cleanArray);
+            $this->autocomplete[$key]['latitude'] = $content['geo_lat'];
+            $this->autocomplete[$key]['longitude'] = $content['geo_lon'];
+
+        }
+
         return $this;
     }
 }

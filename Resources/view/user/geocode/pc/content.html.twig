@@ -9,9 +9,15 @@
         <div class="modal-header">
 
             <h5 class="modal-title">
-                {# Заголовок модального окна #}
-                {{ 'Уточнить адрес'|trans }}
+                {% if form.vars.data.house %}
+                    {# Заголовок модального окна #}
+                    {{ 'Уточнить адрес'|trans }}
+
+                {% else %}
+                    {{ 'К сожалению мы не смогли определить точный адрес'|trans({}, '') }}
+                {% endif %}
             </h5>
+
 
             <div class="btn btn-icon btn-sm btn-active-light-primary ms-2" data-bs-dismiss="modal" aria-label="Close">
                 <span class="svg-icon svg-icon-2x"></span>
@@ -45,15 +51,27 @@
             {% else %}
 
                 {% if form.vars.data.desc %}
-                    <h5>
-                        {# Вы уверены, что желаете удалить #}
-                        {# {{ 'admin.form.delete.h4'|trans }} "{{ name }}"? #}
-                        К сожалению мы не можем определить указанный Вами адрес.
-                    </h5>
+
+                    {# {% if form.vars.data.autocomplete and form.vars.data.autocomplete|length > 1 %}
+                        <p>
+                            <strong>Возможно Вы имели ввиду:</strong>
+
+                            <ul>
+                                {% for autocomplete in form.vars.data.autocomplete %}
+                                    {% if loop.first == false %}
+                                        <li class="other-address" ><a href="#">{{ autocomplete.value }}</a></li>
+                                    {% endif %}
+                                {% endfor %}
+                            </ul>
+                        </p>
+
+                    {% endif %} #}
+
                     <p>
                         Пожалуйста, уточните адрес, чтобы мы могли определить точное местоположение либо доставка будет
-                        по указанному на карте адресу
+                        по указанному на карте адресу:
                     </p>
+
                 {% else %}
                     <p>Пожалуйста, уточните адрес, чтобы мы могли определить точное местоположение</p>
                 {% endif %}
@@ -62,6 +80,7 @@
 
 
             {{ form_widget(form.desc) }}
+
 
             {# {% if is_granted('ROLE_ADMIN') %}
                 Москва, Братеевская улица, 16к6 <br>

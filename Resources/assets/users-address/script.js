@@ -103,7 +103,7 @@ function geocodeAddress()
     //let url = '/geocode/01882e34-acaa-7a3a-80e8-a8326cb34799';
 
     let address = this.value;
-    address = address.replace("/", "-");
+    address = address.replace("/", "~");
     let url = "/geocode/" + address;
 
     /* Указываем метод соединения GET и путь к файлу на сервере */
@@ -248,7 +248,7 @@ function replaceGeocodeAddress()
     const request = new XMLHttpRequest();
 
     let address = this.value;
-    address = address.replace("/", "-");
+    address = address.replace("/", "~");
     let url = "/geocode/" + address;
 
 

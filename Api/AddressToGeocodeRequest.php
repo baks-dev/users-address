@@ -62,6 +62,8 @@ final class AddressToGeocodeRequest
 
     public function setAddress(false|string $address): self
     {
+        $address = str_replace('~', '/', $address);
+
         $this->address = $address;
         return $this;
     }
@@ -150,14 +152,14 @@ final class AddressToGeocodeRequest
             $resAddress[] = $content['country'];
             $resAddress[] = $content['region'] ? ($content['region_type'] === 'г' ? 'г.'.$content['region'] : $content['region_with_type']) : null; // область
 
+            if($content['area'] !== $content['region'] && $content['area'] !== $content['city'] && $content['area_type'] !== $content['city_type'])
+            {
+                $resAddress[] = $content['area'] ? $content['area_type'].'.'.$content['area'] : null; // город
+            }
+
             if($content['city'] !== $content['region'])
             {
                 $resAddress[] = $content['city'] ? $content['city_type'].'.'.$content['city'] : null; // город
-            }
-
-            if($content['area'] !== $content['region'] && $content['area'] !== $content['city'])
-            {
-                $resAddress[] = $content['area'] ? $content['area_type'].'.'.$content['area'] : null; // город
             }
 
             $resAddress[] = $content['settlement'] ? $content['settlement_type'].''.$content['settlement'] : null; // поселок
