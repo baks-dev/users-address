@@ -76,13 +76,30 @@ final class AutoCompleteAddressRequest
                 return false;
             }
 
-            /** Получаем геоданные */
-            $request = $this->TokenHttpClient()
-                ->request(
-                    'POST',
-                    '/suggestions/api/4_1/rs/suggest/address',
-                    ['json' => ['query' => $this->address]],
+            try
+            {
+                /** Получаем геоданные */
+                $request = $this->TokenHttpClient()
+                    ->request(
+                        'POST',
+                        '/suggestions/api/4_1/rs/suggest/address',
+                        ['json' => ['query' => $this->address]],
+                    );
+
+                $content = current($request->toArray(false));
+            }
+            catch(Exception $exception)
+            {
+                $this->logger->critical(
+                    sprintf('users-address: Ошибка %s при получении геолокации', $exception->getMessage()),
+                    [
+                        self::class.':'.__LINE__,
+                        $this->address,
+                    ],
                 );
+
+                return false;
+            }
 
             if($request->getStatusCode() !== 200)
             {
@@ -100,7 +117,7 @@ final class AutoCompleteAddressRequest
 
             $item->expiresAfter(DateInterval::createFromDateString('30 day'));
 
-            return current($request->toArray(false));
+            return $content;
 
         });
     }

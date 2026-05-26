@@ -31,6 +31,7 @@ use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileById
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileResult;
 use BaksDev\Users\Profile\UserProfile\Type\Id\UserProfileUid;
 use DateInterval;
+use Exception;
 use InvalidArgumentException;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
@@ -85,13 +86,30 @@ final class AddressToGeocodeRequest
                 return false;
             }
 
-            /** Получаем геоданные */
-            $request = $this->TokenHttpClient()
-                ->request(
-                    'POST',
-                    '/suggestions/api/4_1/rs/suggest/address',
-                    ['json' => ['query' => $this->address]],
+            try
+            {
+                /** Получаем геоданные */
+                $request = $this->TokenHttpClient()
+                    ->request(
+                        'POST',
+                        '/suggestions/api/4_1/rs/suggest/address',
+                        ['json' => ['query' => $this->address]],
+                    );
+
+                $content = current($request->toArray(false));
+            }
+            catch(Exception $exception)
+            {
+                $this->logger->critical(
+                    sprintf('users-address: Ошибка %s при получении геолокации', $exception->getMessage()),
+                    [
+                        self::class.':'.__LINE__,
+                        $this->address,
+                    ],
                 );
+
+                return false;
+            }
 
             if($request->getStatusCode() !== 200)
             {
@@ -99,7 +117,7 @@ final class AddressToGeocodeRequest
                     sprintf('users-address: Ошибка %s при получении геолокации', $request->getStatusCode()),
                     [
                         self::class.':'.__LINE__,
-                        $request->getContent(),
+                        $request->getContent(false),
                         $this->address,
                     ],
                 );
@@ -109,7 +127,7 @@ final class AddressToGeocodeRequest
 
             $item->expiresAfter(DateInterval::createFromDateString('30 day'));
 
-            return current($request->toArray(false));
+            return $content;
 
         });
 
