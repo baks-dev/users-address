@@ -41,6 +41,7 @@ class GeocodeToAddressRequestTest extends KernelTestCase
 {
     // data-latitude="55.627915" data-longitude="37.81628"
     // "geo_lat" => "56.3063854" "geo_lon" => "38.1502956"
+    // "geo_lat" => "56.3063854" "geo_lon" => "38.1502956"
 
     private const float LATITUDE = 56.3063854;
 

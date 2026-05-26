@@ -92,7 +92,7 @@ final class GeocodeToAddressRequest
         $cache = new FilesystemAdapter('users-address');
         $fileName = md5($this->latitude.$this->longitude);
 
-        $cache->deleteItem('dadata.'.$fileName);
+        //$cache->deleteItem('dadata.'.$fileName);
         $content = $cache->get('dadata.'.$fileName, function(ItemInterface $item) {
 
             $item->expiresAfter(DateInterval::createFromDateString('1 day'));
@@ -156,7 +156,6 @@ final class GeocodeToAddressRequest
 
         });
 
-
         /** Если результат геолокации найден - присваиваем свойства DTO */
         if(false === empty($content))
         {
@@ -168,19 +167,20 @@ final class GeocodeToAddressRequest
             $resAddress[] = $content['country'];
             $resAddress[] = $content['region'] ? ($content['region_type'] === 'г' ? 'г.'.$content['region'] : $content['region_with_type']) : null; // область
 
+
+            if($content['area'] !== $content['region'] && $content['area'] !== $content['city'] && $content['area_type'] !== $content['city_type'])
+            {
+                $resAddress[] = $content['area'] ? $content['area_type'].'.'.$content['area'] : null; // город
+            }
+
             if($content['city'] !== $content['region'])
             {
                 $resAddress[] = $content['city'] ? $content['city_type'].'.'.$content['city'] : null; // город
             }
 
-            if($content['area'] !== $content['region'] && $content['area'] !== $content['city'])
-            {
-                $resAddress[] = $content['area'] ? $content['area_type'].'.'.$content['area'] : null; // город
-            }
-
             $resAddress[] = $content['settlement'] ? $content['settlement_type'].''.$content['settlement'] : null; // поселок
             $resAddress[] = $content['city_district'] ? $content['city_district_type'].'.'.$content['city_district'] : null; // район
-            $resAddress[] = $content['street_with_type'] ? $content['street_type'].($content['street_type'] === 'ул' ? '. ' : ' ').$content['street'] : null; // улица
+            $resAddress[] = $content['street_with_type'] ? $content['street_type'].(in_array($content['street_type'], ['ул', 'ш', 'пер']) ? '.' : ' ').$content['street'] : null; // улица
             $resAddress[] = $content['house'] ? $content['house_type'].'.'.$content['house'] : null; // дом
             $resAddress[] = $content['flat'] ? $content['flat_type'].'.'.$content['flat'] : null; // дом
 

@@ -159,6 +159,11 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
         {
             $content = $value['data'];
 
+            if(empty($content['geo_lat']) || empty($content['geo_lon']))
+            {
+                continue;
+            }
+
             $resAddress = null;
 
             $resAddress[] = $content['country'];
@@ -176,7 +181,7 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
 
             $resAddress[] = $content['settlement'] ? $content['settlement_type'].''.$content['settlement'] : null; // поселок
             $resAddress[] = $content['city_district'] ? $content['city_district_type'].'.'.$content['city_district'] : null; // район
-            $resAddress[] = $content['street_with_type'] ? $content['street_type'].($content['street_type'] === 'ул' ? '. ' : ' ').$content['street'] : null; // улица
+            $resAddress[] = $content['street_with_type'] ? $content['street_type'].(in_array($content['street_type'], ['ул', 'ш', 'пер']) ? '.' : ' ').$content['street'] : null; // улица
             $resAddress[] = $content['house'] ? $content['house_type'].'.'.$content['house'] : null; // дом
             $resAddress[] = $content['flat'] ? $content['flat_type'].'.'.$content['flat'] : null; // дом
 

@@ -66,7 +66,6 @@ final class GeocodeController extends AbstractController
 
     ): Response
     {
-
         $UsersProfileAddressDTO = new UserAddressDTO();
         $UsersProfileAddressDTO->setDesc($address);
         $GeocodeAddressDTO = new GeocodeAddressDTO();
@@ -111,7 +110,7 @@ final class GeocodeController extends AbstractController
             /**
              * Пробуем найти по адресу в базе
              */
-            if(empty($GeocodeAddressDTO->getAddress()))
+            if(false === ($GeocodeAddressDTO instanceof GeocodeAddressDTO) || empty($GeocodeAddressDTO->getAddress()))
             {
                 $resultAddress = $GeocodeAddressRepository->fetchGeocodeByAddressAssociative($address);
 
@@ -136,7 +135,7 @@ final class GeocodeController extends AbstractController
             /**
              * Если геолокация по адресу не найдена - ошибку JSON
              */
-            if(empty($GeocodeAddressDTO) || empty($GeocodeAddressDTO->getAddress()))
+            if(false === ($GeocodeAddressDTO instanceof GeocodeAddressDTO) || empty($GeocodeAddressDTO->getAddress()))
             {
                 return new JsonResponse(
                     [
@@ -157,17 +156,17 @@ final class GeocodeController extends AbstractController
             $UsersProfileAddressDTO->setDesc($GeocodeAddressDTO->getAddress());
             $UsersProfileAddressDTO->setHouse(!empty($GeocodeAddressDTO->getHouse()));
 
-            //if(empty($GeocodeAddressDTO->getHouse()))
-            //{
-            $autocomplete = $AutoCompleteAddressRequest
-                ->setAddress($address)
-                ->find();
-
-            if(false === empty($autocomplete))
+            if(empty($GeocodeAddressDTO->getHouse()))
             {
-                $UsersProfileAddressDTO->setAutocomplete($autocomplete);
+                $autocomplete = $AutoCompleteAddressRequest
+                    ->setAddress($address)
+                    ->find();
+
+                if(false === empty($autocomplete))
+                {
+                    $UsersProfileAddressDTO->setAutocomplete($autocomplete);
+                }
             }
-            //}
 
             // Сохраняем в базу найденные геоданные для последующего выбора
             $messageDispatch->dispatch($GeocodeAddressDTO, transport: 'users-address');

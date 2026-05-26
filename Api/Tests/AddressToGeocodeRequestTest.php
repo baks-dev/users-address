@@ -62,7 +62,7 @@ class AddressToGeocodeRequestTest extends KernelTestCase
             {
                 // Вызываем метод
                 $data = $method->invoke($GeocodeAddressDTO);
-                dump($data);
+                // dump($data);
             }
         }
     }

@@ -9,7 +9,7 @@
         <div class="modal-header">
 
             <h5 class="modal-title">
-                {% if form.vars.data.house %}
+                {% if form.vars.data.house or form.vars.data.desc is empty %}
                     {# Заголовок модального окна #}
                     {{ 'Уточнить адрес'|trans }}
 
@@ -52,20 +52,24 @@
 
                 {% if form.vars.data.desc %}
 
-                    {# {% if form.vars.data.autocomplete and form.vars.data.autocomplete|length > 1 %}
+                    {% if form.vars.data.autocomplete and form.vars.data.autocomplete|length > 1 %}
                         <p>
                             <strong>Возможно Вы имели ввиду:</strong>
 
                             <ul>
                                 {% for autocomplete in form.vars.data.autocomplete %}
                                     {% if loop.first == false %}
-                                        <li class="other-address" ><a href="#">{{ autocomplete.value }}</a></li>
+                                        <li class="other-address pointer text-primary"
+                                            data-address="{{ autocomplete.value }}"
+                                        >
+                                            {{ autocomplete.value }}
+                                        </li>
                                     {% endif %}
                                 {% endfor %}
                             </ul>
                         </p>
 
-                    {% endif %} #}
+                    {% endif %}
 
                     <p>
                         Пожалуйста, уточните адрес, чтобы мы могли определить точное местоположение либо доставка будет

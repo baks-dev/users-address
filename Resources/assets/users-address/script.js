@@ -37,48 +37,54 @@ function initAdddress()
         {
             dataUserAddress.forEach(function(area)
             {
-
-                if(area.tagName === "INPUT")
+                if(area.dataset.address === "true")
                 {
-                    if(area.type === "text")
+                    if(area.tagName === "INPUT")
+                    {
+                        if(area.type === "text")
+                        {
+                            /** Присваиваем адрес по карте */
+                            area.addEventListener("focus", geocodeAddress);
+                        }
+
+                        if(area.type === "radio")
+                        {
+                            /** Присваиваем адрес по выбору из элемента */
+                            area.addEventListener("change", (event) =>
+                            {
+                                document.querySelector("[data-latitude]").value = area.dataset.lati;
+                                document.querySelector("[data-longitude]").value = area.dataset.longi;
+                            });
+
+                            /** Присваиваем адрес после загрузки элемента */
+                            if(area.checked)
+                            {
+                                document.querySelector("[data-latitude]").value = area.dataset.lati;
+                                document.querySelector("[data-longitude]").value = area.dataset.longi;
+                            }
+                        }
+                    }
+
+                    if(area.tagName === "SELECT")
+                    {
+                        /** Присваиваем адрес по выбору из списка */
+                        area.addEventListener("change", (event) =>
+                        {
+                            document.querySelector("[data-latitude]").value = area.options[area.selectedIndex].dataset.lati;
+                            document.querySelector("[data-longitude]").value = area.options[area.selectedIndex].dataset.longi;
+                        });
+                    }
+
+                    if(area.tagName === "TEXTAREA")
                     {
                         /** Присваиваем адрес по карте */
                         area.addEventListener("focus", geocodeAddress);
                     }
 
-                    if(area.type === "radio")
-                    {
-                        /** Присваиваем адрес по выбору из элемента */
-                        area.addEventListener("change", (event) =>
-                        {
-                            document.querySelector("[data-latitude]").value = area.dataset.lati;
-                            document.querySelector("[data-longitude]").value = area.dataset.longi;
-                        });
-
-                        /** Присваиваем адрес после загрузки элемента */
-                        if(area.checked)
-                        {
-                            document.querySelector("[data-latitude]").value = area.dataset.lati;
-                            document.querySelector("[data-longitude]").value = area.dataset.longi;
-                        }
-                    }
+                    area.dataset.address = false;
                 }
 
-                if(area.tagName === "SELECT")
-                {
-                    /** Присваиваем адрес по выбору из списка */
-                    area.addEventListener("change", (event) =>
-                    {
-                        document.querySelector("[data-latitude]").value = area.options[area.selectedIndex].dataset.lati;
-                        document.querySelector("[data-longitude]").value = area.options[area.selectedIndex].dataset.longi;
-                    });
-                }
 
-                if(area.tagName === "TEXTAREA")
-                {
-                    /** Присваиваем адрес по карте */
-                    area.addEventListener("focus", geocodeAddress);
-                }
             });
 
 
@@ -94,8 +100,6 @@ initAdddress();
 
 function geocodeAddress()
 {
-
-
     /* Создаём объект класса XMLHttpRequest */
     const request = new XMLHttpRequest();
 
@@ -104,6 +108,7 @@ function geocodeAddress()
 
     let address = this.value;
     address = address.replace("/", "~");
+
     let url = "/geocode/" + address;
 
     /* Указываем метод соединения GET и путь к файлу на сервере */
@@ -143,6 +148,7 @@ function geocodeAddress()
             modal.addEventListener("hidden.bs.modal", function(event)
             {
                 this.innerHTML = "";
+                delete (this.value);
             });
 
             // /* Если в модальном окне присутствует select2 */
@@ -178,7 +184,7 @@ function geocodeAddress()
 
                         area.addEventListener("input", replaceGeocodeAddress.debounce(2000));
                     }
-                });
+                }, {once : true});
 
 
                 let repeat = 100;
@@ -202,23 +208,16 @@ function geocodeAddress()
 
                 modal.querySelectorAll("form").forEach(function(forms)
                 {
-
                     /*/!* событие отправки формы *!/*/
                     forms.addEventListener("submit", function(event)
                     {
                         event.preventDefault();
                         geoModal.hide();
                         return false;
-                    });
+                    }, {once : true});
                 });
-            });
 
-
-            if($html)
-            {
-                $html = request.responseText;
-            }
-
+            }, {once : true});
 
         }
         else
@@ -237,8 +236,12 @@ function geocodeAddress()
 }
 
 
-function replaceGeocodeAddress()
+function replaceGeocodeAddress(geo)
 {
+    if(typeof geo == "string")
+    {
+        this.value = geo;
+    }
 
     if(typeof this.value == "undefined" || this.value.length < addressLength)
     {
@@ -246,6 +249,7 @@ function replaceGeocodeAddress()
     }
 
     const request = new XMLHttpRequest();
+
 
     let address = this.value;
     address = address.replace("/", "~");
@@ -265,7 +269,6 @@ function replaceGeocodeAddress()
         /* request.readyState - возвращает текущее состояние объекта XHR(XMLHttpRequest) */
         if(request.readyState === 4 && request.status === 200)
         {
-
             let modal = document.getElementById("modal_address");
 
             if(!modal)
@@ -284,6 +287,24 @@ function replaceGeocodeAddress()
             // modal.querySelectorAll('[data-select="select2"]').forEach(function (item) {
             //     new NiceSelect(item, {searchable: true});
             // });
+
+            modal.addEventListener("hidden.bs.modal", function(event)
+            {
+                this.innerHTML = "";
+                delete (this.value);
+            });
+
+            // /* Если в модальном окне присутствуют другие варианты */
+            modal.querySelectorAll(".other-address").forEach(function(item)
+            {
+                item.addEventListener("click", event =>
+                {
+                    replaceGeocodeAddress(item.dataset.address);
+                    delete (this.value);
+
+                }, {once : true});
+
+            });
 
             modal.querySelectorAll("[data-address]").forEach(function(area)
             {
@@ -312,41 +333,32 @@ function replaceGeocodeAddress()
 
             });
 
-
             modal.querySelectorAll("form").forEach(function(forms)
             {
-
                 /* событие отправки формы */
                 forms.addEventListener("submit", function(event)
                 {
-
-                    console.log();
-
                     event.preventDefault();
-
                     submitAddressForm(forms);
-
-                    //geoModal.hide();
-
-
                     return false;
-                });
+                }, {once : true});
             });
 
 
-            if($html)
-            {
-                $html = request.responseText;
-            }
-
-
+            //if($html)
+            //{
+            //    $html = request.responseText;
+            //}
         }
         else
         {
-            /* Закрываем модальное окно */
-            //let myModalEl = document.querySelector('#modal')
-            //let modal = bootstrap.Modal.getOrCreateInstance(myModalEl) // Returns a Bootstrap modal instance
-            //modal.hide();
+
+            //let $successSupplyToast = "{ \"type\":\"danger\" , " +
+            //    "\"header\":\"Адрес местоположения\"  , " +
+            //    "\"message\" : \"Невозможно определить адрес местоположения\" }";
+            //
+            //createToast(JSON.parse($successSupplyToast));
+
         }
     });
 
