@@ -25,6 +25,7 @@ declare(strict_types=1);
 
 namespace BaksDev\Users\Address\Api;
 
+use BaksDev\Core\Type\UserAgent\UserAgentGenerator;
 use BaksDev\Users\Address\UseCase\Geocode\GeocodeAddressDTO;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileByIdInterface;
 use BaksDev\Users\Profile\UserProfile\Repository\UserProfileById\UserProfileResult;
@@ -45,38 +46,23 @@ final class AddressToGeocodeRequest
 {
     private string|false $address;
 
+    private string $userAgent;
+
     public function __construct(
-        #[Target('usersAddressLogger')] private LoggerInterface $logger,
+        #[Target('usersAddressLogger')] private readonly LoggerInterface $logger,
         private readonly UserProfileByIdInterface $UserProfileByIdRepository,
-        #[Autowire(env: 'DADATA_KEY')] private ?string $KEY = null,
-        #[Autowire(env: 'DADATA_SECRET')] private ?string $SECRET = null,
-        #[Autowire(env: 'PROJECT_PROFILE')] private ?string $PROJECT_PROFILE = null,
-    ) {}
-
-    public function getAddressByProjectLocation(): false|GeocodeAddressDTO
+        #[Autowire(env: 'DADATA_KEY')] private readonly ?string $KEY = null,
+        #[Autowire(env: 'PROJECT_PROFILE')] private readonly ?string $PROJECT_PROFILE = null,
+    )
     {
-        if(empty($this->PROJECT_PROFILE))
-        {
-            return false;
-        }
+        $UserAgentGenerator = new UserAgentGenerator();
+        $this->userAgent = $UserAgentGenerator->genDesktop();
+    }
 
-        $UserProfileResult = $this->UserProfileByIdRepository
-            ->profile(new UserProfileUid($this->PROJECT_PROFILE))
-            ->find();
-
-        if($UserProfileResult instanceof UserProfileResult)
-        {
-            $GeocodeAddressDTO = new GeocodeAddressDTO();
-
-            $GeocodeAddressDTO
-                ->setLatitude($UserProfileResult->getLatitude())
-                ->setLongitude($UserProfileResult->getLongitude())
-                ->setAddress($UserProfileResult->getLocation());
-
-            return $GeocodeAddressDTO;
-        }
-
-        return false;
+    public function setAddress(false|string $address): self
+    {
+        $this->address = $address;
+        return $this;
     }
 
     public function find(): GeocodeAddressDTO|false
@@ -89,12 +75,12 @@ final class AddressToGeocodeRequest
         $cache = new FilesystemAdapter('users-address');
         $fileName = md5($this->address);
 
-        //$cache->deleteItem('dadata.'.$fileName);
-        $content = $cache->get('dadata.'.$fileName, function(ItemInterface $item) {
+        //$cache->deleteItem('autocomplete.'.$fileName);
+        $content = $cache->get('autocomplete.'.$fileName, function(ItemInterface $item) {
 
             $item->expiresAfter(DateInterval::createFromDateString('1 day'));
 
-            if(empty($this->KEY) || empty($this->SECRET))
+            if(empty($this->KEY))
             {
                 return false;
             }
@@ -103,8 +89,8 @@ final class AddressToGeocodeRequest
             $request = $this->TokenHttpClient()
                 ->request(
                     'POST',
-                    '/api/v1/clean/address',
-                    ['json' => [$this->address]],
+                    '/suggestions/api/4_1/rs/suggest/address',
+                    ['json' => ['query' => $this->address]],
                 );
 
             if($request->getStatusCode() !== 200)
@@ -121,13 +107,6 @@ final class AddressToGeocodeRequest
                 return false;
             }
 
-            $result = current($request->toArray(false));
-
-            if(empty($result['geo_lat']) || empty($result['geo_lon']))
-            {
-                return false;
-            }
-
             $item->expiresAfter(DateInterval::createFromDateString('30 day'));
 
             return current($request->toArray(false));
@@ -137,6 +116,15 @@ final class AddressToGeocodeRequest
         /** Если результат геолокации найден - присваиваем свойства DTO */
         if(false === empty($content))
         {
+            $content = current($content);
+
+            if(empty($content['data']))
+            {
+                return false;
+            }
+
+            $content = $content['data'];
+
             $resAddress = null;
 
             $GeocodeAddressDTO = new GeocodeAddressDTO();
@@ -259,35 +247,30 @@ final class AddressToGeocodeRequest
         return false;
     }
 
-    public function TokenHttpClient(): RetryableHttpClient
+    private function TokenHttpClient(): RetryableHttpClient
     {
         return new RetryableHttpClient(
             HttpClient::create(['headers' =>
                 [
+                    'User-Agent' => $this->userAgent,
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                     'Authorization' => 'Token '.$this->KEY,
-                    'X-Secret' => $this->SECRET,
                 ],
             ])
                 ->withOptions([
-                    'base_uri' => 'https://cleaner.dadata.ru/',
+                    'base_uri' => 'https://suggestions.dadata.ru/',
                     'verify_host' => false,
                 ]),
         );
     }
 
-    public function setAddress(false|string $address): self
-    {
-        $this->address = $address;
-        return $this;
-    }
-
-    public function freeHttpClient(): RetryableHttpClient
+    private function freeHttpClient(): RetryableHttpClient
     {
         return new RetryableHttpClient(
             HttpClient::create(['headers' =>
                 [
+                    'User-Agent' => $this->userAgent,
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                 ],
@@ -299,5 +282,30 @@ final class AddressToGeocodeRequest
         );
     }
 
+    public function getAddressByProjectLocation(): false|GeocodeAddressDTO
+    {
+        if(empty($this->PROJECT_PROFILE))
+        {
+            return false;
+        }
+
+        $UserProfileResult = $this->UserProfileByIdRepository
+            ->profile(new UserProfileUid($this->PROJECT_PROFILE))
+            ->find();
+
+        if($UserProfileResult instanceof UserProfileResult)
+        {
+            $GeocodeAddressDTO = new GeocodeAddressDTO();
+
+            $GeocodeAddressDTO
+                ->setLatitude($UserProfileResult->getLatitude())
+                ->setLongitude($UserProfileResult->getLongitude())
+                ->setAddress($UserProfileResult->getLocation());
+
+            return $GeocodeAddressDTO;
+        }
+
+        return false;
+    }
 
 }

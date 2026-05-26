@@ -37,9 +37,9 @@ use Symfony\Component\DependencyInjection\Attribute\When;
 #[When(env: 'test')]
 class AddressToGeocodeRequestTest extends KernelTestCase
 {
-    //private const string ADDRESS = 'Дзержинский';
+    private const string ADDRESS = 'Дзержинский';
     //private const string ADDRESS = 'Московская область, городской округ Люберцы, Дзержинский, Денисьевский проезд, 17к1';
-    private const string ADDRESS = 'Балашиха Пионерская 14';
+    //private const string ADDRESS = 'Балашиха Пионерская 14';
 
     public function testUseCase(): void
     {
