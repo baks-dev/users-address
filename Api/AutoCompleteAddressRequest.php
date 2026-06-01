@@ -56,6 +56,33 @@ final class AutoCompleteAddressRequest
         $this->userAgent = $UserAgentGenerator->genDesktop();
     }
 
+    public function setAddress(false|string $address): self
+    {
+        $address = str_replace('~', '/', $address);
+
+        // Разбиваем строку по запятым
+        $parts = explode(',', $address);
+
+        /* Удаляем подъезд|домофон|этаж из адреса */
+        $filtered = array_filter(array_map('trim', $parts), static function($part) {
+            // Пропускаем части, которые полностью состоят из "номер слово" или "слово номер"
+            return !preg_match('/^\d+\s+(?:подъезд|домофон|этаж)$|^(?:подъезд|домофон|этаж)\s+\d+$/iu', $part);
+        });
+
+        $address = array_unique($filtered);
+        $address = implode(', ', $address);
+
+        $address = str_replace(
+            ['дом', 'корпус'],
+            ['д.', 'к'],
+            $address,
+        );
+
+        $this->address = $address;
+
+        return $this;
+    }
+
     public function find(): array|false
     {
         if(empty($this->address))
@@ -138,12 +165,6 @@ final class AutoCompleteAddressRequest
                     'verify_host' => false,
                 ]),
         );
-    }
-
-    public function setAddress(false|string $address): self
-    {
-        $this->address = $address;
-        return $this;
     }
 
 }

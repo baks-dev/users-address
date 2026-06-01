@@ -20,7 +20,7 @@
  *  THE SOFTWARE.
  */
 
-addressLength = 5;
+addressLength = 3;
 
 dataUserAddress = null;
 
@@ -188,6 +188,7 @@ function geocodeAddress()
 
 
                 let repeat = 100;
+
                 setTimeout(function UMzLVLSAMe()
                 {
 
@@ -208,6 +209,8 @@ function geocodeAddress()
 
                 modal.querySelectorAll("form").forEach(function(forms)
                 {
+                    forms.querySelector("#user_address_form_desc").focus();
+
                     /*/!* событие отправки формы *!/*/
                     forms.addEventListener("submit", function(event)
                     {

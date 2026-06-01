@@ -184,8 +184,10 @@ final class UserAddressDTO //implements UsersProfileAddressInterface
             $resAddress[] = $content['street_with_type'] ? $content['street_type'].(in_array($content['street_type'], ['ул', 'ш', 'пер']) ? '.' : ' ').$content['street'] : null; // улица
             $resAddress[] = $content['house'] ? $content['house_type'].'.'.$content['house'] : null; // дом
             $resAddress[] = $content['flat'] ? $content['flat_type'].'.'.$content['flat'] : null; // дом
+            $resAddress[] = $content['block'] ? $content['block_type'].$content['block'] : null; //  корпус
 
             $cleanArray = array_filter($resAddress);
+
 
             $this->autocomplete[$key]['value'] = implode(', ', $cleanArray);
             $this->autocomplete[$key]['latitude'] = $content['geo_lat'];

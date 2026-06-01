@@ -64,7 +64,26 @@ final class AddressToGeocodeRequest
     {
         $address = str_replace('~', '/', $address);
 
+        // Разбиваем строку по запятым
+        $parts = explode(',', $address);
+
+        /* Удаляем подъезд|домофон|этаж из адреса */
+        $filtered = array_filter(array_map('trim', $parts), static function($part) {
+            // Пропускаем части, которые полностью состоят из "номер слово" или "слово номер"
+            return !preg_match('/^\d+\s+(?:подъезд|домофон|этаж)$|^(?:подъезд|домофон|этаж)\s+\d+$/iu', $part);
+        });
+
+        $address = array_unique($filtered);
+        $address = implode(', ', $address);
+
+        $address = str_replace(
+            ['дом', 'корпус'],
+            ['д.', 'к'],
+            $address,
+        );
+
         $this->address = $address;
+
         return $this;
     }
 
@@ -99,6 +118,7 @@ final class AddressToGeocodeRequest
                     );
 
                 $content = current($request->toArray(false));
+
             }
             catch(Exception $exception)
             {
@@ -145,6 +165,7 @@ final class AddressToGeocodeRequest
 
             $content = $content['data'];
 
+
             if(empty($content['geo_lat']) || empty($content['geo_lon']))
             {
                 return false;
@@ -155,7 +176,18 @@ final class AddressToGeocodeRequest
             $GeocodeAddressDTO = new GeocodeAddressDTO();
 
             $resAddress[] = $content['country'];
-            $resAddress[] = $content['region'] ? ($content['region_type'] === 'г' ? 'г.'.$content['region'] : $content['region_with_type']) : null; // область
+
+            if($content['region'])
+            {
+                if($content['region_type'] === 'г' || $content['region_type'] === 'респ')
+                {
+                    $resAddress[] = $content['region_type'].'.'.$content['region'];
+                }
+                else
+                {
+                    $resAddress[] = $content['region_with_type']; // область
+                }
+            }
 
             if($content['area'] !== $content['region'] && $content['area'] !== $content['city'] && $content['area_type'] !== $content['city_type'])
             {
@@ -169,9 +201,12 @@ final class AddressToGeocodeRequest
 
             $resAddress[] = $content['settlement'] ? $content['settlement_type'].''.$content['settlement'] : null; // поселок
             $resAddress[] = $content['city_district'] ? $content['city_district_type'].'.'.$content['city_district'] : null; // район
-            $resAddress[] = $content['street_with_type'] ? $content['street_type'].(in_array($content['street_type'], ['ул', 'ш', 'пер']) ? '.' : ' ').$content['street'] : null; // улица
+
+            $resAddress[] = $content['street_with_type'] ? $content['street_type'].(in_array($content['street_type'], ['ул', 'ш', 'пер', 'дор']) ? '.' : ' ').$content['street'] : null; // улица
+
             $resAddress[] = $content['house'] ? $content['house_type'].'.'.$content['house'] : null; // дом
-            $resAddress[] = $content['flat'] ? $content['flat_type'].'.'.$content['flat'] : null; // дом
+            $resAddress[] = $content['block'] ? $content['block_type'].'.'.$content['block'] : null; //  корпус
+            $resAddress[] = $content['flat'] ? $content['flat_type'].'.'.$content['flat'] : null; // квартира
 
             $cleanArray = array_filter($resAddress);
             $GeocodeAddressDTO->setAddress(implode(', ', $cleanArray));
@@ -202,8 +237,6 @@ final class AddressToGeocodeRequest
             // пробуем перебирать все вхождения удаляя последнее слово
             while(count($words) > 0)
             {
-                // Удаляем последнее слово (array_pop) и собираем строку поиска
-                array_pop($words);
                 $current = implode(' ', $words);
 
                 //$cache->deleteItem('openstreetmap.'.$fileName);
@@ -245,6 +278,8 @@ final class AddressToGeocodeRequest
 
                 if(empty($content))
                 {
+                    // Удаляем последнее слово (array_pop) и собираем строку поиска
+                    array_pop($words);
                     sleep(1);
                     continue;
                 }
