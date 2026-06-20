@@ -78,6 +78,10 @@ final class AutoCompleteAddressRequest
             $address,
         );
 
+        /** находит строение в адресе, например 4Ас3 и разделяет его на 4А с3 */
+        $pattern = '/(\d+[А-Яа-я]?)([сС]\d+)/u';
+        $address = preg_replace($pattern, '$1 $2', $address);
+
         $this->address = $address;
 
         return $this;
