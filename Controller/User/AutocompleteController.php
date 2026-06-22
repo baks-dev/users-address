@@ -87,11 +87,11 @@ final class AutocompleteController extends AbstractController
                         $resAddress[] = $content['city'] ? $content['city_type'].'.'.$content['city'] : null; // город
                     }
 
-                    $resAddress[] = $content['settlement'] ? $content['settlement_type'].''.$content['settlement'] : null; // поселок
+                    $resAddress[] = $content['settlement'] ? $content['settlement_type'].'.'.$content['settlement'] : null; // поселок, деревня, территория
                     $resAddress[] = $content['city_district'] ? $content['city_district_type'].'.'.$content['city_district'] : null; // район
                     $resAddress[] = $content['street_with_type'] ? $content['street_type'].(in_array($content['street_type'], ['ул', 'ш', 'пер', 'дор']) ? '.' : ' ').$content['street'] : null; // улица
 
-                    $resAddress[] = $content['house'] ? $content['house_type'].'.'.$content['house'] : null; // дом
+                    $resAddress[] = $content['house'] ? str_replace('двлд', 'д', $content['house_type']).'.'.$content['house'] : null; // дом
                     $resAddress[] = $content['block'] ? $content['block_type'].'.'.$content['block'] : null; //  корпус
                     $resAddress[] = $content['flat'] ? $content['flat_type'].'.'.$content['flat'] : null; // квартира
 

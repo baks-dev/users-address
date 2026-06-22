@@ -78,7 +78,7 @@ final class AddressToGeocodeRequest
 
         $address = str_replace(
             ['дом', 'корпус'],
-            ['д.', 'к'],
+            ['д.', 'к.'],
             $address,
         );
 
@@ -203,9 +203,8 @@ final class AddressToGeocodeRequest
                 $resAddress[] = $content['city'] ? $content['city_type'].'.'.$content['city'] : null; // город
             }
 
-            $resAddress[] = $content['settlement'] ? $content['settlement_type'].'.'.$content['settlement'] : null; // поселок, деревня
+            $resAddress[] = $content['settlement'] ? $content['settlement_type'].'.'.$content['settlement'] : null; // поселок, деревня, территория
             $resAddress[] = $content['city_district'] ? $content['city_district_type'].'.'.$content['city_district'] : null; // район
-
             $resAddress[] = $content['street_with_type'] ? $content['street_type'].(in_array($content['street_type'], ['ул', 'ш', 'пер', 'дор']) ? '.' : ' ').$content['street'] : null; // улица
 
             $resAddress[] = $content['house'] ? str_replace('двлд', 'д', $content['house_type']).'.'.$content['house'] : null; // дом

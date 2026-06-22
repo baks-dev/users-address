@@ -74,7 +74,7 @@ final class AutoCompleteAddressRequest
 
         $address = str_replace(
             ['дом', 'корпус'],
-            ['д.', 'к'],
+            ['д.', 'к.'],
             $address,
         );
 

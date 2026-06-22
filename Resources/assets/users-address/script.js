@@ -87,7 +87,6 @@ function initAdddress()
 
             });
 
-
             return;
         }
 
@@ -191,7 +190,6 @@ function geocodeAddress()
 
                 setTimeout(function UMzLVLSAMe()
                 {
-
                     if(repeat >= 1000)
                     { return; }
 
@@ -203,6 +201,19 @@ function geocodeAddress()
 
                     repeat = repeat * 2;
                     setTimeout(UMzLVLSAMe, repeat);
+
+                    // /* Если в модальном окне присутствуют другие варианты */
+                    modal.querySelectorAll(".other-address").forEach(function(item)
+                    {
+                        item.addEventListener("click", event =>
+                        {
+                            replaceGeocodeAddress(item.dataset.address);
+                            delete (this.value);
+
+                        }, {once : true});
+
+                    });
+
 
                 }, 100);
 
